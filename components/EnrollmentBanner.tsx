@@ -5,7 +5,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
 
-    const {network, auth} = useContext(AppContext);
+    const {network, auth, refreshAuthCB} = useContext(AppContext);
 
     return (
         <>
@@ -15,11 +15,14 @@ export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigatio
                     <Paragraph>You are currently not enrolled on any projects.</Paragraph>
                     {Boolean(network && auth && auth.csrf) && (
                         <Button
-                            onPress={() => navigation.navigate("Enrol")}
-                            mode={'outlined'} style={{marginVertical: 5}}>Enrol</Button>
+                            onPress={() => navigation.navigate("PreEnrolment")}
+                            mode={'outlined'} style={{marginTop: 10}}>Enrol</Button>
                     )}
                     {Boolean(!network || !auth || !auth.csrf) && (
-                        <Paragraph>To enrol on a project, your device must be online.</Paragraph>
+                        <>
+                            <Paragraph>To enrol on a project, your device must be online.</Paragraph>
+                            <Button onPress={() => refreshAuthCB()}>Retry</Button>
+                        </>
                     )}
                 </Card.Content>
             </Card>

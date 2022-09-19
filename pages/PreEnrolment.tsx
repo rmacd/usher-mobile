@@ -1,53 +1,88 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
-import {Button, Paragraph, TextInput, Title, Text, Chip} from 'react-native-paper';
-import * as Animatable from 'react-native-animatable';
-import {StyleSheet, View} from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AppContext from '../components/AppContext';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, {useContext, useEffect, useState} from "react";
+import {DefaultViewWrapper} from "../utils/DefaultViewWrapper";
+import {Button, Paragraph, TextInput, Title, Text} from "react-native-paper";
+import * as Animatable from "react-native-animatable";
+import {StyleSheet, View} from "react-native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import AppContext from "../components/AppContext";
+import Icon from "react-native-vector-icons/FontAwesome";
+import {BASE_API_URL} from "@env";
+import {PreEnrolmentResponse, GenericError} from "../generated/UsherTypes";
+import Toast from 'react-native-toast-message';
+import {styles} from '../utils/LocalStyles';
 
-export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
+export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
-    const [projectPIN, setProjectPIN] = useState('');
+    Icon.loadFont();
+
+    const [projectPIN, setProjectPIN] = useState("");
     const [networkError, setNetworkError] = useState(false);
     const [enableEnrol, setEnableEnrol] = useState(false);
     const [enrolling, setEnrolling] = useState(false);
+    const [errorObject, setErrorObject] = useState({} as GenericError);
+    const [preEnrolmentResponse, setPreEnrolmentResponse] = useState({} as PreEnrolmentResponse);
 
     const {network, auth} = useContext(AppContext);
 
     useEffect(() => {
-        const pin = projectPIN.replace(/[^0-9]/g, '');
+        const pin = projectPIN.replace(/[^0-9]/g, "");
         setProjectPIN(pin);
         setEnableEnrol(pin.length === 6);
     }, [projectPIN]);
 
     useEffect(() => {
-        console.debug('Enrolling enabled:', enableEnrol);
+        console.debug("Enrolling enabled:", enableEnrol);
     }, [enableEnrol]);
 
     useEffect(() => {
         setNetworkError(!(network && auth.csrf));
     }, [network, auth]);
 
-    const styles = StyleSheet.create({
-        defaultSpacing: {
-            marginBottom: 15,
-            lineHeight: 20,
-        },
-        boldText: {
-            fontWeight: 'bold',
-        },
-        muted: {
-            fontFamily: 'Courier',
-            color: '#aaa',
-        },
-    });
+    useEffect(() => {
+        if (!preEnrolmentResponse || !preEnrolmentResponse.termsUpdated) return;
+        console.debug("Got pre-enrolment response", preEnrolmentResponse);
+        navigation.navigate("ConfirmEnrolment", {project: preEnrolmentResponse});
+    }, [preEnrolmentResponse]);
 
-    function performInitialEnrollment(projectPIN: string) {
+    useEffect(() => {
+        if (!errorObject || !errorObject.message) return;
+        Toast.show({
+            type: "error",
+            text1: `${errorObject.message}`,
+            position: "bottom",
+            visibilityTime: 5000,
+        });
+    }, [errorObject]);
+
+    function performInitialEnrollment(pin: string) {
         setEnrolling(true);
-        console.debug('Enrolling with PIN', projectPIN);
-        // request<PreEnrollmentResponse>("https://usher-dev.apps.rmacd.com/api/auth")
+        console.debug("Enrolling with PIN", pin);
+        let requestBody = JSON.stringify({pin: pin});
+        console.debug("request_body:", requestBody);
+        fetch(BASE_API_URL + "/enrol/initial",
+            {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: requestBody,
+            })
+            .then(async (res) => {
+                const data = await res.json();
+                if (res.status === 200) {
+                    setPreEnrolmentResponse(data);
+                } else {
+                    console.debug("error", data);
+                    setErrorObject(data);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+            .finally(() => {
+                setEnrolling(false);
+            });
     }
 
     return (
@@ -94,8 +129,8 @@ export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any>
                         <TextInput
                             style={styles.defaultSpacing}
                             maxLength={6}
-                            keyboardType={'numeric'}
-                            mode={'outlined'}
+                            keyboardType={"numeric"}
+                            mode={"outlined"}
                             label="Project PIN"
                             value={projectPIN}
                             onChangeText={text => setProjectPIN(text)}
@@ -103,15 +138,15 @@ export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any>
 
                         <Button
                             onPress={() => performInitialEnrollment(projectPIN)}
-                            disabled={!enableEnrol} mode={'contained'}>
+                            disabled={!enableEnrol} mode={"contained"}>
 
                             <Text>Enrol</Text>
 
                             <Animatable.View
                                 style={{paddingHorizontal: 5}}
-                                animation={(enrolling) ? 'rotate' : undefined}
-                                easing={'linear'} iterationCount={'infinite'}>
-                                <Icon name={'refresh'}/>
+                                animation={(enrolling) ? "rotate" : undefined}
+                                easing={"linear"} iterationCount={"infinite"}>
+                                <Icon name={"refresh"}/>
                             </Animatable.View>
                         </Button>
                     </>

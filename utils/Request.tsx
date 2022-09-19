@@ -8,7 +8,8 @@ export async function request<TResponse>(
     try {
         const response = await fetch(url, config);
         if (!response.ok) {
-            throw Error(response.status?.toString());
+            const responseBody = await response.json();
+            throw Error(JSON.stringify(responseBody));
         }
         return await response.json();
     } catch (error) {
@@ -16,7 +17,7 @@ export async function request<TResponse>(
             type: "error",
             text1: `${error} - please try later`,
             position: "bottom",
-            visibilityTime: 10000,
+            visibilityTime: 5000,
         });
         throw (error);
     }
