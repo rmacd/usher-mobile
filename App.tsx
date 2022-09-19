@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import AppContext from './components/AppContext';
-import {SafeAreaView, ScrollView, StatusBar, useColorScheme} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {useColorScheme} from 'react-native';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {UsherStack} from './utils/UsherStack';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+Icon.loadFont();
 
 const App = () => {
-    const isDarkMode = useColorScheme() === 'dark';
-
     // application startup:
     //  1. check network connectivity
     //     i) display network infobox
@@ -20,23 +20,18 @@ const App = () => {
 
     const [enrolled, setEnrolled] = useState(false);
     const netInfo = useNetInfo();
+    const isDarkMode = useColorScheme() === 'dark';
 
     const applicationSettings = {
         enrolled: enrolled,
         network: (netInfo.isConnected) ? netInfo.isConnected : false,
+        isDarkMode: isDarkMode,
     };
 
     return (
-        <NavigationContainer>
-            <AppContext.Provider value={applicationSettings}>
-                <SafeAreaView>
-                    <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'}/>
-                    <ScrollView contentInsetAdjustmentBehavior="automatic">
-                        <UsherStack/>
-                    </ScrollView>
-                </SafeAreaView>
-            </AppContext.Provider>
-        </NavigationContainer>
+        <AppContext.Provider value={applicationSettings}>
+            <UsherStack/>
+        </AppContext.Provider>
     );
 };
 

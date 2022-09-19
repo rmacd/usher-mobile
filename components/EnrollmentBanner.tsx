@@ -1,8 +1,9 @@
 import {Button, Card, Colors, Paragraph, Title} from 'react-native-paper';
 import React, {useContext} from 'react';
 import AppContext from './AppContext';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-export const EnrollmentBanner = () => {
+export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
 
     const {network} = useContext(AppContext);
 
@@ -13,7 +14,9 @@ export const EnrollmentBanner = () => {
                     <Title>Enrol on project</Title>
                     <Paragraph>You are currently not enrolled on any research projects.</Paragraph>
                     {Boolean(network) && (
-                        <Button mode={'outlined'} style={{marginVertical: 5}}>Enrol</Button>
+                        <Button
+                            onPress={() => navigation.navigate("Enrol")}
+                            mode={'outlined'} style={{marginVertical: 5}}>Enrol</Button>
                     )}
                     {Boolean(!network) && (
                         <Paragraph>To enrol on a project, your device must be online.</Paragraph>

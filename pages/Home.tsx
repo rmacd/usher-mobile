@@ -2,13 +2,15 @@ import React, {useContext} from 'react';
 import {View} from 'react-native';
 import {EnrollmentBanner} from '../components/EnrollmentBanner';
 import AppContext from '../components/AppContext';
+import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-export const Home = () => {
+export const Home = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
 
     const {enrolled} = useContext(AppContext);
 
     return (
-        <>
+        <DefaultViewWrapper>
             {/*
                     if the user is enrolled on a project, show the enrolled project information
                     and provide the option to un-enrol, deleting all local data etc
@@ -24,13 +26,13 @@ export const Home = () => {
                     - delete all local data
                     */}
 
-            <View style={{padding: '5%'}}>
+            <View>
 
                 {Boolean(!enrolled) && (
-                    <EnrollmentBanner/>
+                    <EnrollmentBanner navigation={navigation}/>
                 )}
 
             </View>
-        </>
+        </DefaultViewWrapper>
     );
 };
