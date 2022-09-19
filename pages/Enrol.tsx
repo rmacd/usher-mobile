@@ -1,16 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
-import {Button, Paragraph, TextInput, Title, Text} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {Button, Paragraph, TextInput, Title, Text, Chip} from 'react-native-paper';
 import * as Animatable from 'react-native-animatable';
 import {StyleSheet, View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import AppContext from '../components/AppContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
     const [projectPIN, setProjectPIN] = useState('');
+    const [networkError, setNetworkError] = useState(false);
     const [enableEnrol, setEnableEnrol] = useState(false);
     const [enrolling, setEnrolling] = useState(false);
+
+    const {network, auth} = useContext(AppContext);
 
     useEffect(() => {
         const pin = projectPIN.replace(/[^0-9]/g, '');
@@ -19,19 +23,31 @@ export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any>
     }, [projectPIN]);
 
     useEffect(() => {
-        console.debug("Enrolling enabled:", enableEnrol);
+        console.debug('Enrolling enabled:', enableEnrol);
     }, [enableEnrol]);
+
+    useEffect(() => {
+        setNetworkError(!(network && auth.csrf));
+    }, [network, auth]);
 
     const styles = StyleSheet.create({
         defaultSpacing: {
             marginBottom: 15,
             lineHeight: 20,
         },
+        boldText: {
+            fontWeight: 'bold',
+        },
+        muted: {
+            fontFamily: 'Courier',
+            color: '#aaa',
+        },
     });
 
     function performInitialEnrollment(projectPIN: string) {
         setEnrolling(true);
         console.debug('Enrolling with PIN', projectPIN);
+        // request<PreEnrollmentResponse>("https://usher-dev.apps.rmacd.com/api/auth")
     }
 
     return (
@@ -54,28 +70,52 @@ export const Enrol = ({navigation}: { navigation: NativeStackNavigationProp<any>
                     read and accept the Terms and Conditions for the study itself,
                     as well as for the general usage of this app.
                 </Paragraph>
-                <TextInput
-                    style={styles.defaultSpacing}
-                    maxLength={6}
-                    keyboardType={'numeric'}
-                    mode={'outlined'}
-                    label="Project PIN"
-                    value={projectPIN}
-                    onChangeText={text => setProjectPIN(text)}
-                />
-                <Button
-                    onPress={() => performInitialEnrollment(projectPIN)}
-                    disabled={!enableEnrol} mode={"contained"}>
 
-                    <Text>Enrol</Text>
-                    <Animatable.View
-                        style={{paddingHorizontal: 5}}
-                        animation={(enrolling) ? "rotate" : undefined}
-                        easing={"linear"} iterationCount={"infinite"}>
-                        <Icon name={'refresh'}/>
-                    </Animatable.View>
+                {Boolean(networkError) && (
+                    <>
+                        <Text style={{...styles.boldText, ...styles.defaultSpacing}}>
+                            Due to a network error it is not currently possible to enrol you.
+                            Please try again later.
+                        </Text>
+                        <Text style={styles.muted}>
+                            Error details
+                        </Text>
+                        <Text style={styles.muted}>
+                            Network available: {(network) ? "true" : "false"}
+                        </Text>
+                        <Text style={styles.muted}>
+                            Token: {(auth && auth.csrf) ? "available" : "undefined"}
+                        </Text>
+                    </>
+                )}
 
-                </Button>
+                {Boolean(!networkError) && (
+                    <>
+                        <TextInput
+                            style={styles.defaultSpacing}
+                            maxLength={6}
+                            keyboardType={'numeric'}
+                            mode={'outlined'}
+                            label="Project PIN"
+                            value={projectPIN}
+                            onChangeText={text => setProjectPIN(text)}
+                        />
+
+                        <Button
+                            onPress={() => performInitialEnrollment(projectPIN)}
+                            disabled={!enableEnrol} mode={'contained'}>
+
+                            <Text>Enrol</Text>
+
+                            <Animatable.View
+                                style={{paddingHorizontal: 5}}
+                                animation={(enrolling) ? 'rotate' : undefined}
+                                easing={'linear'} iterationCount={'infinite'}>
+                                <Icon name={'refresh'}/>
+                            </Animatable.View>
+                        </Button>
+                    </>
+                )}
             </View>
         </DefaultViewWrapper>
     );
