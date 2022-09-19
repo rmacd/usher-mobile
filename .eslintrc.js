@@ -12,6 +12,7 @@ module.exports = {
         'no-undef': 'off',
         'prettier/prettier': 0,
         'no-trailing-spaces': 0,
+        'no-unused-vars': 0,
       },
     },
   ],

@@ -3,20 +3,32 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Text,
   useColorScheme,
-  View,
 } from 'react-native';
 import { Header } from './components/Header';
+import {useNetInfo} from '@react-native-community/netinfo';
+import {EnrollmentBanner} from './components/EnrollmentBanner';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+
+  const netInfo = useNetInfo();
+
+  // application startup:
+  //  1. check network connectivity
+  //     i) display network infobox
+  //    ii) check remote validity/pinning
+  //  2. check whether enrolled on project
+  //     i) check project remains valid (if on network)
+  //    ii) display project details, permit upload, etc.
+  //   iii) check/update keypair
+  //  3. display global details (regardless of whether enrolled)
 
   return (
     <SafeAreaView>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <Header title={"Init"} />
+        <Header title={'Init'} />
 
         {/* if the user is enrolled on a project, show the enrolled project information
             and provide the option to un-enrol, deleting all local data etc
@@ -33,9 +45,8 @@ const App = () => {
             - delete all local data
         */}
 
-        <View>
-          <Text>Init</Text>
-        </View>
+        <EnrollmentBanner/>
+
       </ScrollView>
     </SafeAreaView>
   );
