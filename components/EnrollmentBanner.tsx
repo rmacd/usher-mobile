@@ -10,7 +10,7 @@ export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigatio
     return (
         <>
             <Card>
-                <Card.Content style={{shadowRadius: 3, backgroundColor: Colors.orange300}}>
+                <Card.Content style={{shadowRadius: 3, backgroundColor: Colors.grey300}}>
                     <Title>Not enrolled</Title>
                     <Paragraph>You are currently not enrolled on any projects.</Paragraph>
                     {Boolean(network && auth && auth.csrf) && (
@@ -20,7 +20,15 @@ export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigatio
                     )}
                     {Boolean(!network || !auth || !auth.csrf) && (
                         <>
-                            <Paragraph>To enrol on a project, your device must be online.</Paragraph>
+                            {Boolean(!network) && (
+                                <Paragraph>To enrol on a project, your device must be online.</Paragraph>
+                            )}
+                            {Boolean(network) && (
+                                <Paragraph>
+                                    Unfortunately you cannot enrol at the minute as there
+                                    seems to be a remote server issue. Please try again later.
+                                </Paragraph>
+                            )}
                             <Button onPress={() => refreshAuthCB()}>Retry</Button>
                         </>
                     )}

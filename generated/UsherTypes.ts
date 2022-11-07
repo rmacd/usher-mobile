@@ -7,6 +7,7 @@ export interface PreEnrolmentRequest {
 
 export interface PreEnrolmentResponse {
     projectName?: string;
+    projectId?: string;
     requiredPermissions?: ProjectPermissions[];
     projectDescription?: string;
     projectTerms?: string;
@@ -39,6 +40,7 @@ export enum ProjectPermissions {
     GPS_FOREGROUND = "GPS_FOREGROUND",
     GPS_BACKGROUND = "GPS_BACKGROUND",
     DEVICE_ID = "DEVICE_ID",
+    UNIQUE_ID = "UNIQUE_ID",
     USER_IP = "USER_IP",
     CAMERA = "CAMERA",
     AUDIO = "AUDIO",
