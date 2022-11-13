@@ -2,7 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {List, Title, Text, Paragraph, Colors, Checkbox, Button} from 'react-native-paper';
 import {StyleSheet, View} from 'react-native';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
-import {PermissionDTO, PreEnrolmentResponse, ProjectPermissions} from '../generated/UsherTypes';
+import {
+    AESPayload,
+    ConfirmEnrolmentRequest,
+    PermissionDTO,
+    PreEnrolmentResponse,
+    ProjectPermissions,
+} from '../generated/UsherTypes';
 import {RouteProp} from '@react-navigation/native';
 import {BASE_API_URL} from '@env';
 import {LoadingSpinner} from '../components/LoadingSpinner';
@@ -10,6 +16,10 @@ import {useWindowDimensions} from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {getClientKeys} from '../components/EnrolmentManager';
+import {decryptPayload, getAESKey} from '../utils/AESPayloadManager';
+// @ts-ignore - local library (for now)
+import {KeyPair} from 'react-native-fast-rsa';
 
 const styles = StyleSheet.create({
     header: {
@@ -85,19 +95,72 @@ export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackN
 
     const preEnrolment = route.params?.project as PreEnrolmentResponse;
 
-    Icon.loadFont().then(() => {
-        console.debug("Font loaded");
-    });
+    Icon.loadFont();
 
     const [loading, setLoading] = useState(true);
     const [permissions, setPermissions] = useState([] as PermissionDTO[]);
     const {width} = useWindowDimensions();
     const [checkedTerms, setCheckedTerms] = useState(false);
     const [checkedData, setCheckedData] = useState(false);
+    const [generatingKeypair, setGeneratingKeypair] = useState(false);
+    const [keys, setKeys] = useState({} as KeyPair);
+    const [confirmEnrolmentResponse, setConfirmEnrolmentResponse] = useState({} as AESPayload);
+
+    useEffect(() => {
+        if (preEnrolment === undefined || preEnrolment.projectId === undefined) {
+            return;
+        }
+        getClientKeys(preEnrolment.projectId)
+            .then((keyPair: KeyPair) => {
+                setKeys(keyPair);
+            });
+    }, [preEnrolment]);
 
     function completeEnrolment() {
-        navigation.navigate("CompleteEnrolment", {});
+        const enrolmentRequest = {
+            projectId: preEnrolment.projectId,
+            publicKey: keys.publicKey,
+            participantId: preEnrolment.participantId,
+            signature: preEnrolment.signature,
+        } as ConfirmEnrolmentRequest;
+
+        console.debug("Sending enrolment confirmation", enrolmentRequest);
+        return fetch(BASE_API_URL + '/enrol/confirm', {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(enrolmentRequest),
+        })
+        .then(response => response.json() as AESPayload)
+        .then((response: AESPayload) => {
+            setConfirmEnrolmentResponse(response);
+        })
+        .catch((err) => {
+            console.log("Error confirming enrolment:", err);
+        });
+        // navigation.navigate("CompleteEnrolment", {});
     }
+
+    useEffect(() => {
+        if (!keys || !keys.privateKey || !keys.publicKey || !confirmEnrolmentResponse || !confirmEnrolmentResponse.key) {
+            return;
+        }
+        getAESKey(confirmEnrolmentResponse, keys.privateKey)
+            .then((key: string) => {
+                if (key === undefined) {
+                    throw new Error("Key not defined");
+                }
+                decryptPayload(confirmEnrolmentResponse, key);
+            });
+    }, [keys, confirmEnrolmentResponse]);
+
+    useEffect(() => {
+        // todo remove me
+        console.info("debug: checking boxes");
+        setCheckedTerms(true);
+        setCheckedData(true);
+    }, []);
 
     useEffect(() => {
         fetch(BASE_API_URL + '/permissions', {})
@@ -152,11 +215,11 @@ export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackN
                         mode={'outlined'}
                         style={styles.interactiveArea}
                         onPress={() => completeEnrolment()}
-                        disabled={(!checkedTerms || !checkedData)}>
-                        Complete enrolment
-                    </Button>
+                        disabled={(!checkedTerms || !checkedData || generatingKeypair || !keys)}>
+                            Confirm enrolment
+                        </Button>
                 </View>
-                <View style={styles.forceMarginBottom}></View>
+                <View style={styles.forceMarginBottom}/>
             </View>
         </DefaultViewWrapper>
     );

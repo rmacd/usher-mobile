@@ -14,6 +14,7 @@ module.exports = {
         "no-trailing-spaces": 0,
         "no-unused-vars": 0,
         "quotes": [0, "double"],
+        "yoda": 0,
       },
     },
   ],

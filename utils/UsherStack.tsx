@@ -12,7 +12,7 @@ export const UsherStack = () => {
     return (
         <Stack.Navigator initialRouteName={"Home"} screenOptions={{animation: "fade"}}>
             <Stack.Screen name="Home" component={Home}
-                          options={{headerTitle: "Usher Mobile Research Platform"}}/>
+                          options={{headerTitle: "Usher Mobile Research App"}}/>
             <Stack.Screen name="PreEnrolment" component={PreEnrolment}/>
             <Stack.Screen name="ConfirmEnrolment" component={ConfirmEnrolment}
                           options={{headerTitle: "Confirm Enrolment"}}/>

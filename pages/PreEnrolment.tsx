@@ -18,7 +18,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     const [projectPIN, setProjectPIN] = useState("");
     const [networkError, setNetworkError] = useState(false);
     const [enableEnrol, setEnableEnrol] = useState(false);
-    const [enrolling, setEnrolling] = useState(false);
+    const [enroling, setEnroling] = useState(false);
     const [errorObject, setErrorObject] = useState({} as GenericError);
     const [preEnrolmentResponse, setPreEnrolmentResponse] = useState({} as PreEnrolmentResponse);
 
@@ -31,7 +31,13 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     }, [projectPIN]);
 
     useEffect(() => {
-        console.debug("Enrolling enabled:", enableEnrol);
+        // todo remove me
+        console.info("debug: entering default pin");
+        setProjectPIN("123123");
+    }, []);
+
+    useEffect(() => {
+        console.debug("Enroling enabled:", enableEnrol);
     }, [enableEnrol]);
 
     useEffect(() => {
@@ -54,9 +60,9 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
         });
     }, [errorObject]);
 
-    function performInitialEnrollment(pin: string) {
-        setEnrolling(true);
-        console.debug("Enrolling with PIN", pin);
+    function performInitialEnrolment(pin: string) {
+        setEnroling(true);
+        console.debug("Enroling with PIN", pin);
         let requestBody = JSON.stringify({pin: pin});
         console.debug("request_body:", requestBody);
         fetch(BASE_API_URL + "/enrol/initial",
@@ -81,7 +87,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                 console.log(err);
             })
             .finally(() => {
-                setEnrolling(false);
+                setEnroling(false);
             });
     }
 
@@ -92,7 +98,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                     Enrol on project
                 </Title>
                 <Paragraph style={styles.defaultSpacing}>
-                    Enrolling enables you to join a particular research study
+                    Enroling enables you to join a particular research study
                     and start sending device and questionnaire data to the study
                     lead.
                 </Paragraph>
@@ -137,14 +143,14 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                         />
 
                         <Button
-                            onPress={() => performInitialEnrollment(projectPIN)}
+                            onPress={() => performInitialEnrolment(projectPIN)}
                             disabled={!enableEnrol} mode={"contained"}>
 
                             <Text>Enrol</Text>
 
                             <Animatable.View
                                 style={{paddingHorizontal: 5}}
-                                animation={(enrolling) ? "rotate" : undefined}
+                                animation={(enroling) ? "rotate" : undefined}
                                 easing={"linear"} iterationCount={"infinite"}>
                                 <Icon name={"refresh"}/>
                             </Animatable.View>

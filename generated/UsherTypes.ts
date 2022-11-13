@@ -1,6 +1,34 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export interface AESPayload {
+    key?: string;
+    iv?: string;
+    payload?: string;
+}
+
+export interface AuthResponse {
+    csrf?: string;
+    issued?: Date;
+}
+
+export interface ConfirmEnrolmentRequest {
+    projectId?: string;
+    participantId?: string;
+    publicKey?: string;
+    signature?: string;
+}
+
+export interface ConfirmEnrolmentResponse {
+    projectId?: string;
+    publicKey?: string;
+}
+
+export interface PermissionDTO {
+    name?: string;
+    description?: string;
+}
+
 export interface PreEnrolmentRequest {
     pin?: string;
 }
@@ -12,14 +40,8 @@ export interface PreEnrolmentResponse {
     projectDescription?: string;
     projectTerms?: string;
     termsUpdated?: string;
-}
-
-export interface EnrolmentResponse {
-}
-
-export interface AuthResponse {
-    csrf?: string;
-    issued?: Date;
+    participantId?: string;
+    signature?: string;
 }
 
 export interface GenericError {
@@ -27,11 +49,6 @@ export interface GenericError {
     message?: string;
     errors?: string[];
     timestamp?: string;
-}
-
-export interface PermissionDTO {
-    name?: string;
-    description?: string;
 }
 
 export enum ProjectPermissions {

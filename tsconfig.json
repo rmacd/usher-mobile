@@ -8,5 +8,8 @@
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
     "types": ["node"],
     "typeRoots": ["./types"],
+    "lib": [
+      "ES2021.String"
+    ]
   }
 }

@@ -3,7 +3,7 @@ import React, {useContext} from 'react';
 import AppContext from './AppContext';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
+export const InitialEnrolmentBanner = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
 
     const {network, auth, refreshAuthCB} = useContext(AppContext);
 
@@ -11,8 +11,8 @@ export const EnrollmentBanner = ({navigation}: {navigation: NativeStackNavigatio
         <>
             <Card>
                 <Card.Content style={{shadowRadius: 3, backgroundColor: Colors.grey300}}>
-                    <Title>Not enrolled</Title>
-                    <Paragraph>You are currently not enrolled on any projects.</Paragraph>
+                    <Title>Not enroled</Title>
+                    <Paragraph>You are currently not enroled on any projects.</Paragraph>
                     {Boolean(network && auth && auth.csrf) && (
                         <Button
                             onPress={() => navigation.navigate("PreEnrolment")}
