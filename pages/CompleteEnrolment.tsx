@@ -4,11 +4,11 @@ import {View} from 'react-native';
 import {Title, Paragraph} from 'react-native-paper';
 import {ManagePermissions} from '../components/ManagePermissions';
 import {RouteProp} from '@react-navigation/native';
-import {PreEnrolmentResponse} from '../generated/UsherTypes';
+import {Project} from '../components/EnrolmentManager';
 
 export const CompleteEnrolment = ({route}: {route: RouteProp<any>}) => {
 
-    const preEnrolment = route.params?.project as PreEnrolmentResponse;
+    const project = route.params?.project as Project;
 
     return (
         <DefaultViewWrapper>
@@ -18,10 +18,12 @@ export const CompleteEnrolment = ({route}: {route: RouteProp<any>}) => {
                     You have now completed enrolment on this project.
                     Before we can start gathering and submitting data, we must ask you to
                     manually switch on the following functions for the app.
-                    For each option, you may be asked to confirm that you are giving
-                    us permission to gather this data, via your device settings.
                 </Paragraph>
-                <ManagePermissions projectId={preEnrolment.projectId}/>
+                <Paragraph>
+                    For each option you select, your phone may prompt you to
+                    permit access to the feature via your device settings.
+                </Paragraph>
+                <ManagePermissions project={project}/>
             </View>
         </DefaultViewWrapper>
     );

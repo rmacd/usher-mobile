@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {DefaultViewWrapper} from "../utils/DefaultViewWrapper";
 import {Button, Paragraph, TextInput, Title, Text} from "react-native-paper";
 import * as Animatable from "react-native-animatable";
-import {StyleSheet, View} from "react-native";
+import {View} from "react-native";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import AppContext from "../components/AppContext";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -12,9 +12,6 @@ import Toast from 'react-native-toast-message';
 import {styles} from '../utils/LocalStyles';
 
 export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
-
-    Icon.loadFont();
-
     const [projectPIN, setProjectPIN] = useState("");
     const [networkError, setNetworkError] = useState(false);
     const [enableEnrol, setEnableEnrol] = useState(false);
@@ -48,7 +45,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
         if (!preEnrolmentResponse || !preEnrolmentResponse.termsUpdated) return;
         console.debug("Got pre-enrolment response", preEnrolmentResponse);
         navigation.navigate("ConfirmEnrolment", {project: preEnrolmentResponse});
-    }, [preEnrolmentResponse]);
+    }, [navigation, preEnrolmentResponse]);
 
     useEffect(() => {
         if (!errorObject || !errorObject.message) return;
