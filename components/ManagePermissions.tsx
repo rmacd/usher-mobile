@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Project} from './EnrolmentManager';
 import {Button, Checkbox, Colors, Text} from 'react-native-paper';
 import {ProjectPermission} from '../generated/UsherTypes';
@@ -19,10 +19,17 @@ export const ManagePermissions = (props: {project: Project}) => {
         permissionArea: {
             padding: 10,
             paddingBottom: 0,
-            marginTop: 5,
+            marginVertical: 5,
             borderTopStyle: 'solid',
             borderTopWidth: 2,
             borderTopColor: Colors.grey300
+        },
+    });
+
+    const interactiveArea = StyleSheet.create({
+        active: {
+            ...styles.interactiveArea,
+            backgroundColor: Colors.green300,
         },
     });
 
@@ -32,16 +39,31 @@ export const ManagePermissions = (props: {project: Project}) => {
 
     const [enabledPermissions, setEnabledPermissions] = useState([] as ProjectPermission[]);
 
+    useEffect(() => {
+        console.debug("length of requested permissions === length of granted permissions",
+            props.project.projectPermissions.length === enabledPermissions.length
+        );
+    }, [enabledPermissions.length, props.project.projectPermissions.length]);
+
     if (!props.project.projectId) {
         return (<></>);
     }
 
     function toggleEnable(permission: ProjectPermission) {
-        return true;
+        if (isEnabled(permission)) {
+            setEnabledPermissions(enabledPermissions.filter((p) => p !== permission));
+        }
+        else {
+            setEnabledPermissions([...enabledPermissions, permission]);
+        }
     }
 
     function isEnabled(permission: ProjectPermission) {
-        return false;
+        return enabledPermissions.includes(permission);
+    }
+
+    function completeEnrolment() {
+        console.debug("Complete enrolment called")
     }
 
     return (
@@ -49,26 +71,31 @@ export const ManagePermissions = (props: {project: Project}) => {
             <View>
                 {props.project.projectPermissions.map((permission, key) => (
                     <>
-                        <View style={styles.permissionArea}>
+                        <View style={styles.permissionArea} key={key}>
                         <Text>
                             {getPermissionString(permission)}
                         </Text>
                         <Checkbox.Item
-                            style={styles.interactiveArea} mode={'android'}
+                            style={(isEnabled(permission) ? {...interactiveArea.active} : {...styles.interactiveArea})} mode={'android'}
                             label={`Grant "${permission.toLowerCase().replaceAll("_", " ")}" permission`}
                             onPress={() => toggleEnable(permission)}
+                            uncheckedColor={Colors.grey600}
+                            color={Colors.green800}
                             status={(isEnabled(permission)) ? 'checked' : 'unchecked'}/>
                         </View>
                     </>
                 ))}
 
-                {/*<Button*/}
-                {/*    mode={'outlined'}*/}
-                {/*    style={styles.interactiveArea}*/}
-                {/*    onPress={() => completeEnrolment()}*/}
-                {/*    disabled={(!checkedTerms || !checkedData || generatingKeypair || !keys)}>*/}
-                {/*    Confirm enrolment*/}
-                {/*</Button>*/}
+                <View style={styles.permissionArea}>
+                <Button
+                    mode={'outlined'}
+                    style={styles.interactiveArea}
+                    onPress={() => completeEnrolment()}
+                    color={Colors.green800}
+                    disabled={(props.project.projectPermissions.length !== enabledPermissions.length)}>
+                    Confirm enrolment
+                </Button>
+                </View>
             </View>
 
         </>
