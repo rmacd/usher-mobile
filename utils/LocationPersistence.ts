@@ -2,7 +2,7 @@ import {Location} from 'react-native-background-geolocation';
 import {Project} from '../components/EnrolmentManager';
 import Aes from 'react-native-aes-crypto';
 import {AESPayload, MobileLocationEvent} from '../generated/UsherTypes';
-import {getDBConnection, triggerPushLocations, writeEvent} from './DbSetup';
+import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 
 const debugPersistence = false;
