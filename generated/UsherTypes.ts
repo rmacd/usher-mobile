@@ -45,6 +45,8 @@ export interface MobileLocationEvent {
     speedAccuracy?: number;
     headingAccuracy?: number;
     altitudeAccuracy?: number;
+    activity?: string;
+    activityAccuracy?: number;
     moving?: boolean;
     mock?: boolean;
     timestamp?: Date;

@@ -3,19 +3,18 @@ import AppContext from './components/AppContext';
 import {useColorScheme} from 'react-native';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {UsherStack} from './utils/UsherStack';
-import {AuthResponse, ProjectPermission} from './generated/UsherTypes';
+import {AuthResponse} from './generated/UsherTypes';
 import {request} from './utils/Request';
 import Toast from 'react-native-toast-message';
 import {BASE_API_URL} from '@env';
 import {Footer} from './components/Footer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackgroundGeolocation from 'react-native-background-geolocation';
-import {createTable, getDBConnection} from './utils/DbSetup';
+import {createTables, getDBConnection} from './utils/DbSetup';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import {persistLocation} from './utils/LocationPersistence';
 import {Project} from './components/EnrolmentManager';
 import {ASYNC_DB_PROJ_BASE} from './utils/Const';
-import Gzip from 'rn-gzip';
 
 const App = () => {
     // application startup:
@@ -28,6 +27,11 @@ const App = () => {
     //   iii) check/update keypair
     //  3. display global details (regardless of whether enroled)
 
+    const debugPersistence = false;
+    const debugDB = false;
+    const debugNetwork = false;
+    const debugGeo = true;
+
     const [enroled, setEnroled] = useState(false);
     const netInfo = useNetInfo();
     const [hasNetwork, setHasNetwork] = useState(false);
@@ -39,19 +43,19 @@ const App = () => {
     }, [netInfo.isConnected]);
 
     useEffect(() => {
-        console.log("Running setup hooks");
+        if (debugDB) {console.log("Running setup hooks");}
         getDBConnection().then(
             (conn: SQLiteDatabase) => {
-                return createTable(conn);
+                return createTables(conn);
             }
         ).then(() => {
-            console.debug("DB available");
+            if (debugDB) {console.debug("DB available");}
         });
-    }, []);
+    }, [debugDB]);
 
     const refreshCsrfToken = useCallback(() => {
         if (hasNetwork) {
-            console.debug('Requesting CSRF token at', BASE_API_URL + '/auth');
+            if (debugNetwork) {console.debug('Requesting CSRF token at', BASE_API_URL + '/auth');}
             request<AuthResponse>(BASE_API_URL + '/auth', {method: 'POST'})
                 .then((response) => {
                     setAuth(response);
@@ -77,15 +81,15 @@ const App = () => {
 
     useEffect(() => {
         if (auth) {
-            console.debug('Updated CSRF token:', auth);
+            if (debugNetwork) {console.debug('Updated CSRF token:', auth);}
         }
-    }, [auth]);
+    }, [auth, debugNetwork]);
 
     useEffect(() => {
         BackgroundGeolocation.destroyLocations(() => {
-            console.log("Deleted all locations");
+            if (debugPersistence) {console.log("Deleted all locations");}
         });
-    });
+    }, [debugPersistence]);
 
     useEffect(() => {
         console.debug('Setting up BackgroundGeolocation (BG)');
@@ -95,32 +99,30 @@ const App = () => {
         }
         BackgroundGeolocation.removeAllListeners(
             () => {
-                console.debug('BG: removed listeners');
+                if (debugGeo) {console.debug('BG: removed listeners');}
             },
             () => {
                 throw new Error('BG: unable to remove listeners');
             });
             BackgroundGeolocation.addListener("location", (input: any) => {
-                console.debug("Got location", input);
+                if (debugGeo) {console.debug("Got location", input);}
                 AsyncStorage.getAllKeys((_error, result) => {
                     return result?.filter(function (r) {
                         r.startsWith(ASYNC_DB_PROJ_BASE);
                     }).keys;
                 }).then((res: readonly string[]) => {
-                    console.debug(`Calling location listener for ${res.length} projects: ${res}`);
+                    if (debugPersistence || debugGeo) {console.debug(`Calling location listener for ${res.length} projects: ${res}`);}
                     for (const projKey of res) {
                         AsyncStorage.getItem(projKey, (_itemErr, itemVal) => {
                             const proj = JSON.parse(itemVal || '') as unknown as Project;
                             if (!proj || proj.projectId === undefined) {
-                                console.debug(`Unable to find project or project ID for key ${projKey}`);
+                                console.warn(`Unable to find project or project ID for key ${projKey}`);
                                 return;
                             }
-                            console.log("Persisting to project", proj.projectId, input);
                             persistLocation(input, proj);
                         });
                     }
                 });
-                // persistLocation(input);
             });
         BackgroundGeolocation.ready(
             {
@@ -144,7 +146,7 @@ const App = () => {
                     BackgroundGeolocation.start();
                 }
             });
-    }, []);
+    }, [debugGeo, debugPersistence]);
 
     // todo fixme
     // useEffect(() => {

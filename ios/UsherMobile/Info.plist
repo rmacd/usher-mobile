@@ -45,7 +45,9 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Required if a project using this app wants to gather data in the backgound</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>With your permission, platform will forward your location data to specific research projects. For this to work, access to your location is required.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>With your permission, platform will forward motion data to research projects on which you are a participant. You can switch this off at any time.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
