@@ -7,6 +7,13 @@ export interface AESPayload {
     payload?: string;
 }
 
+export interface GenericError {
+    status?: HttpStatus;
+    message?: string;
+    errors?: string[];
+    timestamp?: string;
+}
+
 export interface AuthResponse {
     csrf?: string;
     issued?: Date;
@@ -23,6 +30,24 @@ export interface ConfirmEnrolmentResponse {
     projectId?: string;
     publicKey?: string;
     requiredPermissions?: ProjectPermission[];
+}
+
+export interface MobileLocationEvent {
+    eventId?: string;
+    batteryCharging?: boolean;
+    batteryLevel?: number;
+    latitude?: number;
+    longitude?: number;
+    speed?: number;
+    heading?: number;
+    altitude?: number;
+    locationAccuracy?: number;
+    speedAccuracy?: number;
+    headingAccuracy?: number;
+    altitudeAccuracy?: number;
+    moving?: boolean;
+    mock?: boolean;
+    timestamp?: Date;
 }
 
 export interface PermissionDTO {
@@ -45,28 +70,12 @@ export interface PreEnrolmentResponse {
     signature?: string;
 }
 
+export interface ProjectDTO {
+}
+
 export interface ResponseWrapper {
     type?: string;
     value?: any;
-}
-
-export interface GenericError {
-    status?: HttpStatus;
-    message?: string;
-    errors?: string[];
-    timestamp?: string;
-}
-
-export enum ProjectPermission {
-    ACCELEROMETER_FOREGROUND = "Project requests access to device accelerometer while app is in foreground",
-    ACCELEROMETER_BACKGROUND = "Project requests access to device accelerometer while app is in background",
-    GPS_FOREGROUND = "Project requests access to GPS (ie your location) while app is in foreground",
-    GPS_BACKGROUND = "Project requests access to GPS (ie your location) while app is in background",
-    DEVICE_ID = "Project requests that a hash of the device ID be submitted by participant",
-    UNIQUE_ID = "Enrolled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
-    USER_IP = "Project requests permission to log device IP when submitting participant data",
-    CAMERA = "Project requests permission to access camera",
-    AUDIO = "Project requests permission to access device audio",
 }
 
 /**
@@ -230,4 +239,16 @@ export enum HttpStatus {
     BANDWIDTH_LIMIT_EXCEEDED = "509 BANDWIDTH_LIMIT_EXCEEDED",
     NOT_EXTENDED = "510 NOT_EXTENDED",
     NETWORK_AUTHENTICATION_REQUIRED = "511 NETWORK_AUTHENTICATION_REQUIRED",
+}
+
+export enum ProjectPermission {
+    ACCELEROMETER_FOREGROUND = "Project requests access to device accelerometer while app is in foreground",
+    ACCELEROMETER_BACKGROUND = "Project requests access to device accelerometer while app is in background",
+    GPS_FOREGROUND = "Project requests access to GPS (ie your location) while app is in foreground",
+    GPS_BACKGROUND = "Project requests access to GPS (ie your location) while app is in background",
+    DEVICE_ID = "Project requests that a hash of the device ID be submitted by participant",
+    UNIQUE_ID = "Enrolled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
+    USER_IP = "Project requests permission to log device IP when submitting participant data",
+    CAMERA = "Project requests permission to access camera",
+    AUDIO = "Project requests permission to access device audio",
 }
