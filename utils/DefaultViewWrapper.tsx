@@ -13,7 +13,7 @@ export const DefaultViewWrapper = ({children}: childrenProps) => {
     return (
         <SafeAreaView>
             <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'}/>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{padding: "5%"}}>
+            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{padding: '5%'}}>
                 {children}
             </ScrollView>
         </SafeAreaView>

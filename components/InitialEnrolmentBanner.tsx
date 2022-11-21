@@ -3,7 +3,7 @@ import React, {useContext} from 'react';
 import AppContext from './AppContext';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-export const InitialEnrolmentBanner = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
+export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
     const {network, auth, refreshAuthCB} = useContext(AppContext);
 
@@ -15,7 +15,7 @@ export const InitialEnrolmentBanner = ({navigation}: {navigation: NativeStackNav
                     <Paragraph>You are currently not enroled on any projects.</Paragraph>
                     {Boolean(network && auth && auth.csrf) && (
                         <Button
-                            onPress={() => navigation.navigate("PreEnrolment")}
+                            onPress={() => navigation.navigate('PreEnrolment')}
                             mode={'outlined'} style={{marginTop: 10}}>Enrol</Button>
                     )}
                     {Boolean(!network || !auth || !auth.csrf) && (

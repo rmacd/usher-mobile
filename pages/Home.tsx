@@ -5,14 +5,14 @@ import AppContext from '../components/AppContext';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-export const Home = ({navigation}: {navigation: NativeStackNavigationProp<any> }) => {
+export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
     const {enroled} = useContext(AppContext);
 
     return (
         <DefaultViewWrapper>
             <>
-            {/*
+                {/*
                     if the user is enroled on a project, show the enroled project information
                     and provide the option to un-enrol, deleting all local data etc
 
@@ -27,11 +27,11 @@ export const Home = ({navigation}: {navigation: NativeStackNavigationProp<any> }
                     - delete all local data
                     */}
 
-            <View>
-                {Boolean(!enroled) && (
-                    <InitialEnrolmentBanner navigation={navigation}/>
-                )}
-            </View>
+                <View>
+                    {Boolean(!enroled) && (
+                        <InitialEnrolmentBanner navigation={navigation}/>
+                    )}
+                </View>
             </>
         </DefaultViewWrapper>
     );

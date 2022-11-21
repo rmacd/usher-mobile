@@ -4,21 +4,7 @@ import {Button, Checkbox, Colors, Text} from 'react-native-paper';
 import {ProjectPermission} from '../generated/UsherTypes';
 import {StyleSheet, View} from 'react-native';
 import Toast from 'react-native-toast-message';
-import BackgroundGeolocation, {
-    State,
-    Config,
-    Location,
-    LocationError,
-    Geofence,
-    GeofenceEvent,
-    GeofencesChangeEvent,
-    HeartbeatEvent,
-    HttpEvent,
-    MotionActivityEvent,
-    MotionChangeEvent,
-    ProviderChangeEvent,
-    ConnectivityChangeEvent,
-} from 'react-native-background-geolocation';
+import BackgroundGeolocation, {State} from 'react-native-background-geolocation';
 
 // displays all permissions for a particular app
 export const ManagePermissions = (props: { project: Project }) => {

@@ -1,18 +1,18 @@
-import React, {useContext, useEffect, useState} from "react";
-import {DefaultViewWrapper} from "../utils/DefaultViewWrapper";
-import {Button, Paragraph, TextInput, Title, Text} from "react-native-paper";
-import * as Animatable from "react-native-animatable";
-import {View} from "react-native";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import AppContext from "../components/AppContext";
-import Icon from "react-native-vector-icons/FontAwesome";
-import {BASE_API_URL} from "@env";
-import {PreEnrolmentResponse, GenericError} from "../generated/UsherTypes";
+import React, {useContext, useEffect, useState} from 'react';
+import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
+import {Button, Paragraph, Text, TextInput, Title} from 'react-native-paper';
+import * as Animatable from 'react-native-animatable';
+import {View} from 'react-native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import AppContext from '../components/AppContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {BASE_API_URL} from '@env';
+import {GenericError, PreEnrolmentResponse} from '../generated/UsherTypes';
 import Toast from 'react-native-toast-message';
 import {styles} from '../utils/LocalStyles';
 
 export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
-    const [projectPIN, setProjectPIN] = useState("");
+    const [projectPIN, setProjectPIN] = useState('');
     const [networkError, setNetworkError] = useState(false);
     const [enableEnrol, setEnableEnrol] = useState(false);
     const [enroling, setEnroling] = useState(false);
@@ -22,19 +22,19 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     const {network, auth} = useContext(AppContext);
 
     useEffect(() => {
-        const pin = projectPIN.replace(/[^0-9]/g, "");
+        const pin = projectPIN.replace(/[^0-9]/g, '');
         setProjectPIN(pin);
         setEnableEnrol(pin.length === 6);
     }, [projectPIN]);
 
     useEffect(() => {
         // todo remove me
-        console.info("debug: entering default pin");
-        setProjectPIN("123123");
+        console.info('debug: entering default pin');
+        setProjectPIN('123123');
     }, []);
 
     useEffect(() => {
-        console.debug("Enroling enabled:", enableEnrol);
+        console.debug('Enroling enabled:', enableEnrol);
     }, [enableEnrol]);
 
     useEffect(() => {
@@ -42,33 +42,37 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     }, [network, auth]);
 
     useEffect(() => {
-        if (!preEnrolmentResponse || !preEnrolmentResponse.termsUpdated) return;
-        console.debug("Got pre-enrolment response", preEnrolmentResponse);
-        navigation.navigate("ConfirmEnrolment", {project: preEnrolmentResponse});
+        if (!preEnrolmentResponse || !preEnrolmentResponse.termsUpdated) {
+            return;
+        }
+        console.debug('Got pre-enrolment response', preEnrolmentResponse);
+        navigation.navigate('ConfirmEnrolment', {project: preEnrolmentResponse});
     }, [navigation, preEnrolmentResponse]);
 
     useEffect(() => {
-        if (!errorObject || !errorObject.message) return;
+        if (!errorObject || !errorObject.message) {
+            return;
+        }
         Toast.show({
-            type: "error",
+            type: 'error',
             text1: `${errorObject.message}`,
-            position: "bottom",
+            position: 'bottom',
             visibilityTime: 5000,
         });
     }, [errorObject]);
 
     function performInitialEnrolment(pin: string) {
         setEnroling(true);
-        console.debug("Enroling with PIN", pin);
+        console.debug('Enroling with PIN', pin);
         let requestBody = JSON.stringify({pin: pin});
-        console.debug("request_body:", requestBody);
-        fetch(BASE_API_URL + "/enrol/initial",
+        console.debug('request_body:', requestBody);
+        fetch(BASE_API_URL + '/enrol/initial',
             {
                 headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                 },
-                method: "POST",
+                method: 'POST',
                 body: requestBody,
             })
             .then(async (res) => {
@@ -76,7 +80,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                 if (res.status === 200) {
                     setPreEnrolmentResponse(data);
                 } else {
-                    console.debug("error", data);
+                    console.debug('error', data);
                     setErrorObject(data);
                 }
             })
@@ -119,10 +123,10 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                             Error details
                         </Text>
                         <Text style={styles.muted}>
-                            Network available: {(network) ? "true" : "false"}
+                            Network available: {(network) ? 'true' : 'false'}
                         </Text>
                         <Text style={styles.muted}>
-                            Token: {(auth && auth.csrf) ? "available" : "undefined"}
+                            Token: {(auth && auth.csrf) ? 'available' : 'undefined'}
                         </Text>
                     </>
                 )}
@@ -132,8 +136,8 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                         <TextInput
                             style={styles.defaultSpacing}
                             maxLength={6}
-                            keyboardType={"numeric"}
-                            mode={"outlined"}
+                            keyboardType={'numeric'}
+                            mode={'outlined'}
                             label="Project PIN"
                             value={projectPIN}
                             onChangeText={text => setProjectPIN(text)}
@@ -141,15 +145,15 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
 
                         <Button
                             onPress={() => performInitialEnrolment(projectPIN)}
-                            disabled={!enableEnrol} mode={"contained"}>
+                            disabled={!enableEnrol} mode={'contained'}>
 
                             <Text>Enrol</Text>
 
                             <Animatable.View
                                 style={{paddingHorizontal: 5}}
-                                animation={(enroling) ? "rotate" : undefined}
-                                easing={"linear"} iterationCount={"infinite"}>
-                                <Icon name={"refresh"}/>
+                                animation={(enroling) ? 'rotate' : undefined}
+                                easing={'linear'} iterationCount={'infinite'}>
+                                <Icon name={'refresh'}/>
                             </Animatable.View>
                         </Button>
                     </>

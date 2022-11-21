@@ -1,10 +1,7 @@
-import {
-    Location,
-} from 'react-native-background-geolocation';
+import {Location} from 'react-native-background-geolocation';
 import {Project} from '../components/EnrolmentManager';
 import Aes from 'react-native-aes-crypto';
 import {AESPayload} from '../generated/UsherTypes';
-import {cyan50} from 'react-native-paper/lib/typescript/styles/colors';
 
 const encryptData = (text: string, key: string) => {
     return Aes.randomKey(16).then(iv => {
@@ -22,36 +19,24 @@ function encryptAndWriteLocation(location: Location | string, project: Project) 
         return;
     }
     Aes.randomKey(32).then((key: string) => {
-        console.debug("key", key);
+        console.debug('key', key);
         // location cannot be gzipped until native functions accept byte[]
         encryptData(JSON.stringify(location), key)
-                .then(({cipher, iv}) => {
-                    console.debug('Encrypted:', cipher);
-                    console.debug('IV:', iv);
-                    Aes.hmac256(cipher, key).then(hash => {
-                        console.debug('HMAC', hash);
-                    });
-                    const v = {
-                        key: key,
-                        iv: iv,
-                        payload: cipher,
-                    } as AESPayload;
+            .then(({cipher, iv}) => {
+                console.debug('Encrypted:', cipher);
+                console.debug('IV:', iv);
+                Aes.hmac256(cipher, key).then(hash => {
+                    console.debug('HMAC', hash);
                 });
+                const v = {
+                    key: key,
+                    iv: iv,
+                    payload: cipher,
+                } as AESPayload;
+            });
     });
 }
 
 export const persistLocation = (location: Location | string, project: Project) => {
     encryptAndWriteLocation(location, project);
-    // encryptPayload(location, project)
-    //     .then((payload: string) => {
-    //         return {payload: payload, db: getDBConnection()} as ;
-    //     })
-    //     .then(({db: }) => {
-    //         writeLocation(db, payload)
-    //     })
-    // getDBConnection()
-    //     .then((conn: SQLiteDatabase) => {
-    //         writeLocation(conn, location);
-    //     }
-    // );
 };

@@ -1,5 +1,5 @@
 // nicked from https://www.newline.co/@bespoyasov/how-to-use-fetch-with-typescript--a81ac257
-import Toast from "react-native-toast-message";
+import Toast from 'react-native-toast-message';
 
 export async function request<TResponse>(
     url: string,
@@ -14,9 +14,9 @@ export async function request<TResponse>(
         return await response.json();
     } catch (error) {
         Toast.show({
-            type: "error",
+            type: 'error',
             text1: `${error} - please try later`,
-            position: "bottom",
+            position: 'bottom',
             visibilityTime: 5000,
         });
         throw (error);

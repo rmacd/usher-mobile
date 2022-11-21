@@ -7,9 +7,10 @@ export const getDBConnection = async () => {
 };
 
 export const createTable = async (db: SQLiteDatabase) => {
-    await db.executeSql(`CREATE TABLE IF NOT EXISTS locations (
-    timestamp DATE NOT NULL,
-    project TEXT NOT NULL,
-    value TEXT NOT NULL
-    );`);
+    await db.executeSql(`CREATE TABLE IF NOT EXISTS locations
+                         (
+                             timestamp DATE NOT NULL,
+                             project   TEXT NOT NULL,
+                             value     TEXT NOT NULL
+                         );`);
 };

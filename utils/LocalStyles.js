@@ -6,10 +6,10 @@ export const styles = StyleSheet.create({
         lineHeight: 20,
     },
     boldText: {
-        fontWeight: "bold",
+        fontWeight: 'bold',
     },
     muted: {
-        fontFamily: "Courier",
-        color: "#aaa",
+        fontFamily: 'Courier',
+        color: '#aaa',
     },
 });

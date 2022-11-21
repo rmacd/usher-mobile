@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {View} from 'react-native';
-import {Title, Paragraph} from 'react-native-paper';
+import {Paragraph, Title} from 'react-native-paper';
 import {ManagePermissions} from '../components/ManagePermissions';
 import {RouteProp} from '@react-navigation/native';
 import {Project} from '../components/EnrolmentManager';
 
-export const CompleteEnrolment = ({route}: {route: RouteProp<any>}) => {
+export const CompleteEnrolment = ({route}: { route: RouteProp<any> }) => {
 
     const project = route.params?.project as Project;
 

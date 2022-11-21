@@ -1,25 +1,25 @@
 import React, {useEffect, useState} from 'react';
-import {List, Title, Text, Paragraph, Colors, Checkbox, Button} from 'react-native-paper';
-import {StyleSheet, View} from 'react-native';
+import {Button, Checkbox, Colors, List, Paragraph, Text, Title} from 'react-native-paper';
+import {StyleSheet, useWindowDimensions, View} from 'react-native';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {
     AESPayload,
-    ConfirmEnrolmentRequest, ConfirmEnrolmentResponse,
+    ConfirmEnrolmentRequest,
+    ConfirmEnrolmentResponse,
     PermissionDTO,
     PreEnrolmentResponse,
-    ProjectPermission, ResponseWrapper,
+    ProjectPermission,
+    ResponseWrapper,
 } from '../generated/UsherTypes';
 import {RouteProp} from '@react-navigation/native';
 import {BASE_API_URL} from '@env';
 import {LoadingSpinner} from '../components/LoadingSpinner';
-import {useWindowDimensions} from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {getClientKeys, Project} from '../components/EnrolmentManager';
 import {decryptPayload, getAESKey} from '../utils/AESPayloadManager';
 // @ts-ignore - local library (for now)
 import {KeyPair} from 'react-native-fast-rsa';
-import {useToast} from 'react-native-toast-message/lib/src/useToast';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_DB_PROJ_BASE} from '../utils/Const';
@@ -185,7 +185,7 @@ export const ConfirmEnrolment = ({
                     text1: 'Completed enrolment',
                     text2: `Project ID: ${proj.projectId}`,
                 });
-                navigation.navigate("CompleteEnrolment", {project: proj});
+                navigation.navigate('CompleteEnrolment', {project: proj});
             });
     }
 
