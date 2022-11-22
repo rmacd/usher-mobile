@@ -1,7 +1,7 @@
 import {Location} from 'react-native-background-geolocation';
 import {Project} from '../components/EnrolmentManager';
 import Aes from 'react-native-aes-crypto';
-import {AESPayload, MobileLocationEvent} from '../generated/UsherTypes';
+import {AESPayload, LocationEventDTO} from '../generated/UsherTypes';
 import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 
@@ -18,7 +18,7 @@ const encryptData = (text: string, key: string) => {
     });
 };
 
-function encryptAndWriteLocation(location: MobileLocationEvent | string, project: Project) {
+function encryptAndWriteLocation(location: LocationEventDTO | string, project: Project) {
     if (project.projectPublicKey === undefined) {
         console.error(`Public key for project ${project.projectId} does not exist`);
         return;
@@ -55,7 +55,8 @@ function encryptAndWriteLocation(location: MobileLocationEvent | string, project
 export const persistLocation = (location: Location | string, project: Project) => {
     const loc = location.valueOf() as Location;
     const event = {
-        eventId: loc.uuid,
+        id: loc.uuid,
+        participantId: ",",
         latitude: loc.coords?.latitude,
         longitude: loc.coords?.longitude,
         altitude: loc.coords?.altitude,
@@ -72,6 +73,6 @@ export const persistLocation = (location: Location | string, project: Project) =
         activity: loc.activity?.activity,
         activityAccuracy: loc.activity?.confidence,
         mock: loc.mock,
-    } as MobileLocationEvent;
+    } as LocationEventDTO;
     encryptAndWriteLocation(event, project);
 };

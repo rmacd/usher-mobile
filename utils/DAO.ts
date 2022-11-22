@@ -1,20 +1,24 @@
 import {enablePromise, openDatabase, SQLiteDatabase} from 'react-native-sqlite-storage';
 import uuid from 'react-uuid';
-import moment from 'moment';
+import {DateTime, DurationUnit, Interval} from 'luxon';
 import {request} from './Request';
 import {BASE_API_URL} from '@env';
+
+// luxon cheatsheet https://moment.github.io/luxon/demo/global.html
 
 enablePromise(true);
 
 const LAST_UPLOAD_PROP = 'last_upload';
 const UPLOAD_LOCK_PROP = 'upload_lock';
-const UPLOAD_LOCK_SEC = 5;
+const UPLOAD_LOCK_SEC = 15;
 
 export const getDBConnection = async () => {
     return openDatabase({name: 'usher-data.db', location: 'default'});
 };
 
 export const createTables = async (db: SQLiteDatabase) => {
+    // await db.executeSql(`DROP TABLE events;`);
+
     await db.executeSql(`CREATE TABLE IF NOT EXISTS events
                          (
                              uuid      TEXT NOT NULL,
@@ -39,7 +43,7 @@ export const createTables = async (db: SQLiteDatabase) => {
 
 export const writeEvent = async (db: SQLiteDatabase, project: string, value: string) => {
     await db.executeSql(`INSERT INTO events (uuid, timestamp, project, value)
-                         VALUES ('${uuid()}', '${new Date()}',
+                         VALUES ('${uuid()}', '${DateTime.now().toISO()}',
                                  '${project}', '${value}');`);
 };
 
@@ -54,7 +58,7 @@ export const getProperty = async (p: string) => {
                             console.debug(`query property '${p}' returned value: ${results.rows.item(0).value}`);
                             value = results.rows.item(0).value;
                         } else {
-                            console.warn(`query for property ${p} returned ${results.rows.length} results`);
+                            console.info(`query for property ${p} returned ${results.rows.length} results`);
                         }
                     },
                 );
@@ -99,16 +103,14 @@ export const deleteProperty = async (p: string) => {
 };
 
 export const deleteEvent = (id: string) => {
-    console.debug("would delete event " + id);
-    return;
-    // getDBConnection().then((db) => {
-    //     db.transaction((tx) => {
-    //         tx.executeSql(`DELETE FROM events WHERE id=?;`, [id])
-    //             .then((_res) => {
-    //             console.debug(`Deleted event ${id}`);
-    //         });
-    //     });
-    // });
+    getDBConnection().then((db) => {
+        db.transaction((tx) => {
+            tx.executeSql(`DELETE FROM events WHERE uuid=?;`, [id])
+                .then((_res) => {
+                console.debug(`Deleted event ${id}`);
+            });
+        });
+    });
 };
 
 // do not call this without a lock
@@ -119,10 +121,20 @@ export const doPushBatch = () => {
                 console.debug(`Got ${res.rows.length} results`);
                 let data = [];
                 for (let i = 0; i < res.rows.length; i++) {
-                    data.push(res.rows.item(i));
+                    data.push({
+                        uuid: res.rows.item(i).uuid,
+                        timestamp: res.rows.item(i).timestamp,
+                        project: res.rows.item(i).project,
+                        value: JSON.parse(res.rows.item(i).value),
+                    });
                 }
-                console.debug("would push", JSON.stringify(data));
-                request<string[]>(BASE_API_URL + '/upload', {method: "POST"})
+                request<string[]>(BASE_API_URL + '/upload', {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "content-type": "application/json",
+                    },
+                })
                     .then((response) => {
                         for (const id of response) {
                             deleteEvent(id);
@@ -134,15 +146,14 @@ export const doPushBatch = () => {
 };
 
 export const doPush = () => {
+    console.debug("doPush()");
     getProperty(UPLOAD_LOCK_PROP).then((res) => {
         if (res !== undefined) {
-            const diff = Math.abs(
-                moment(res).diff(moment(new Date()), 'seconds')
-            );
+            const diff = getDiff('seconds', DateTime.fromISO(res).toISO());
             if (diff > UPLOAD_LOCK_SEC) {
-                console.warn(`Lock was >${UPLOAD_LOCK_SEC} seconds ago, deleting ...`);
+                console.info(`Lock was >${UPLOAD_LOCK_SEC} seconds ago, deleting ...`);
                 deleteProperty(UPLOAD_LOCK_PROP).then(() => {
-                    console.warn("Deleted upload lock");
+                    console.info("Deleted upload lock");
                 });
             }
             getProperty(UPLOAD_LOCK_PROP).then((locked_since) => {
@@ -162,13 +173,16 @@ export const doPush = () => {
     });
 };
 
+export const getDiff = (unit: DurationUnit, input: string) => {
+    return Math.abs(Interval.fromDateTimes(DateTime.fromISO(input), DateTime.now()).length(unit));
+};
+
 export const triggerPushLocations = () => {
     getProperty(LAST_UPLOAD_PROP).then((res) => {
         if (res !== undefined) {
-            const date = new Date(res);
-            const diff = Math.abs(
-                moment(date).diff(moment(new Date()), 'seconds')
-            );
+            const date = DateTime.fromISO(res);
+            const diff = getDiff('seconds', date.toISO());
+            console.log("diff", diff);
             if (diff > 60) {
                 doPush();
             }

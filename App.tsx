@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import AppContext from './components/AppContext';
-import {useColorScheme} from 'react-native';
+import {useColorScheme, View} from 'react-native';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {UsherStack} from './utils/UsherStack';
 import {AuthResponse} from './generated/UsherTypes';
@@ -10,11 +10,31 @@ import {BASE_API_URL} from '@env';
 import {Footer} from './components/Footer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackgroundGeolocation from 'react-native-background-geolocation';
-import {createTables, getDBConnection} from './utils/DbSetup';
+import {createTables, getDBConnection} from './utils/DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import {persistLocation} from './utils/LocationPersistence';
 import {Project} from './components/EnrolmentManager';
 import {ASYNC_DB_PROJ_BASE} from './utils/Const';
+import {Appbar} from 'react-native-paper';
+import {ModalSettings} from './components/ModalSettings';
+import {Provider, useDispatch} from 'react-redux';
+import {store} from './redux/UsherStore';
+import {showModalSettings} from './redux/actions/SettingsModal';
+
+function UsherMenu() {
+    const dispatch = useDispatch();
+
+    const handleShowSettings = () => {
+        dispatch(showModalSettings());
+    };
+
+    return (
+        <Appbar.Header>
+            <Appbar.Content title="Usher Mobile" />
+            <Appbar.Action icon={"cog"} accessibilityLabel={"open settings"} onPress={() => {handleShowSettings()}} />
+        </Appbar.Header>
+    );
+}
 
 const App = () => {
     // application startup:
@@ -37,6 +57,7 @@ const App = () => {
     const [hasNetwork, setHasNetwork] = useState(false);
     const isDarkMode = useColorScheme() === 'dark';
     const [auth, setAuth] = useState({} as AuthResponse);
+    const [showSettings, setShowSettings] = useState(false);
 
     useEffect(() => {
         setHasNetwork((netInfo.isConnected) ? netInfo.isConnected : false);
@@ -73,6 +94,8 @@ const App = () => {
         isDarkMode: isDarkMode,
         auth: auth,
         refreshAuthCB: refreshCsrfToken,
+        showSettings: showSettings,
+        showSettingsCB: setShowSettings
     };
 
     useEffect(() => {
@@ -116,7 +139,7 @@ const App = () => {
                         AsyncStorage.getItem(projKey, (_itemErr, itemVal) => {
                             const proj = JSON.parse(itemVal || '') as unknown as Project;
                             if (!proj || proj.projectId === undefined) {
-                                console.warn(`Unable to find project or project ID for key ${projKey}`);
+                                console.info(`Unable to find project or project ID for key ${projKey}`);
                                 return;
                             }
                             persistLocation(input, proj);
@@ -172,11 +195,15 @@ const App = () => {
     }, []);
 
     return (
-        <AppContext.Provider value={applicationSettings}>
-            <UsherStack/>
-            <Footer/>
-            <Toast/>
-        </AppContext.Provider>
+        <Provider store={store}>
+            <AppContext.Provider value={applicationSettings}>
+                <UsherMenu/>
+                <UsherStack/>
+                <Footer/>
+                <Toast/>
+                <ModalSettings/>
+            </AppContext.Provider>
+        </Provider>
     );
 };
 

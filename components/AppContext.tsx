@@ -10,6 +10,8 @@ const AppContext = React.createContext({
     auth: {} as AuthResponse,
     refreshAuthCB: () => {
     },
+    showSettings: false,
+    showSettingsCB: (_val: boolean) => {}
 });
 
 export default AppContext;

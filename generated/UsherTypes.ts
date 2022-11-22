@@ -32,26 +32,6 @@ export interface ConfirmEnrolmentResponse {
     requiredPermissions?: ProjectPermission[];
 }
 
-export interface MobileLocationEvent {
-    eventId?: string;
-    batteryCharging?: boolean;
-    batteryLevel?: number;
-    latitude?: number;
-    longitude?: number;
-    speed?: number;
-    heading?: number;
-    altitude?: number;
-    locationAccuracy?: number;
-    speedAccuracy?: number;
-    headingAccuracy?: number;
-    altitudeAccuracy?: number;
-    activity?: string;
-    activityAccuracy?: number;
-    moving?: boolean;
-    mock?: boolean;
-    timestamp?: Date;
-}
-
 export interface PermissionDTO {
     name?: string;
     description?: string;
@@ -73,11 +53,56 @@ export interface PreEnrolmentResponse {
 }
 
 export interface ProjectDTO {
+    id?: string;
+    name?: string;
+    created?: Date;
+    active?: boolean;
+    permissions?: PermissionDTO[];
+    description?: string;
+    publicKey?: string;
 }
 
 export interface ResponseWrapper {
     type?: string;
     value?: any;
+}
+
+export interface EncryptedEventDTO {
+    uuid?: string;
+    timestamp?: Date;
+    project?: string;
+    value?: AESPayload;
+}
+
+export interface LocationEventDTO extends UsherEventDTO {
+    batteryCharging?: boolean;
+    batteryLevel?: number;
+    latitude?: number;
+    longitude?: number;
+    speed?: number;
+    heading?: number;
+    altitude?: number;
+    activity?: string;
+    locationAccuracy?: number;
+    speedAccuracy?: number;
+    headingAccuracy?: number;
+    altitudeAccuracy?: number;
+    activityAccuracy?: number;
+    moving?: boolean;
+    mock?: boolean;
+    timestamp?: Date;
+}
+
+export interface UsherEventDTO {
+    id?: string;
+    schemaVersion?: string;
+    eventType?: EventType;
+    participantId?: string;
+    deviceId?: string;
+}
+
+export enum EventType {
+    LOCATION = "LOCATION",
 }
 
 /**
@@ -246,8 +271,8 @@ export enum HttpStatus {
 export enum ProjectPermission {
     ACCELEROMETER_FOREGROUND = "Project requests access to device accelerometer while app is in foreground",
     ACCELEROMETER_BACKGROUND = "Project requests access to device accelerometer while app is in background",
-    GPS_FOREGROUND = "Project requests access to GPS (ie your location) while app is in foreground",
-    GPS_BACKGROUND = "Project requests access to GPS (ie your location) while app is in background",
+    GPS_FOREGROUND = "Project requests access to GPS (ie location data) while app is in foreground",
+    GPS_BACKGROUND = "Project requests access to GPS (ie location data) while app is in background",
     DEVICE_ID = "Project requests that a hash of the device ID be submitted by participant",
     UNIQUE_ID = "Enrolled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
     USER_IP = "Project requests permission to log device IP when submitting participant data",
