@@ -1,13 +1,13 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {View} from 'react-native';
 import {InitialEnrolmentBanner} from '../components/InitialEnrolmentBanner';
-import AppContext from '../components/AppContext';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
-    const {enroled} = useContext(AppContext);
+    // todo update with redux
+    const enroled = false;
 
     return (
         <DefaultViewWrapper>

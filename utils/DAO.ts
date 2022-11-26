@@ -21,10 +21,10 @@ export const createTables = async (db: SQLiteDatabase) => {
 
     await db.executeSql(`CREATE TABLE IF NOT EXISTS events
                          (
-                             uuid      TEXT NOT NULL,
+                             uuid TEXT      NOT NULL,
                              timestamp DATE NOT NULL,
-                             project   TEXT NOT NULL,
-                             value     TEXT NOT NULL
+                             project TEXT   NOT NULL,
+                             value TEXT     NOT NULL
                          );`);
     await db.executeSql(`CREATE TABLE IF NOT EXISTS global_permissions
                          (
@@ -52,7 +52,9 @@ export const getProperty = async (p: string) => {
     return await getDBConnection()
         .then((db) => {
             return db.transaction((tx) => {
-                tx.executeSql(`SELECT * FROM metadata WHERE property=?;`,
+                tx.executeSql(`SELECT *
+                               FROM metadata
+                               WHERE property = ?;`,
                     [p], (_tx, results) => {
                         if (results.rows.length === 1) {
                             console.debug(`query property '${p}' returned value: ${results.rows.item(0).value}`);
@@ -95,7 +97,9 @@ export const deleteProperty = async (p: string) => {
         if (res !== undefined) {
             getDBConnection().then((db) => {
                 db.transaction((tx) => {
-                    tx.executeSql(`DELETE FROM metadata WHERE property=?;`, [p]);
+                    tx.executeSql(`DELETE
+                                   FROM metadata
+                                   WHERE property = ?;`, [p]);
                 });
             });
         }
@@ -105,10 +109,12 @@ export const deleteProperty = async (p: string) => {
 export const deleteEvent = (id: string) => {
     getDBConnection().then((db) => {
         db.transaction((tx) => {
-            tx.executeSql(`DELETE FROM events WHERE uuid=?;`, [id])
+            tx.executeSql(`DELETE
+                           FROM events
+                           WHERE uuid = ?;`, [id])
                 .then((_res) => {
-                console.debug(`Deleted event ${id}`);
-            });
+                    console.debug(`Deleted event ${id}`);
+                });
         });
     });
 };
@@ -117,7 +123,9 @@ export const deleteEvent = (id: string) => {
 export const doPushBatch = () => {
     getDBConnection().then((db) => {
         db.transaction((tx) => {
-            tx.executeSql(`SELECT * FROM events LIMIT 100`, [], (cb, res) => {
+            tx.executeSql(`SELECT *
+                           FROM events
+                           LIMIT 100`, [], (cb, res) => {
                 console.debug(`Got ${res.rows.length} results`);
                 let data = [];
                 for (let i = 0; i < res.rows.length; i++) {
@@ -129,10 +137,10 @@ export const doPushBatch = () => {
                     });
                 }
                 request<string[]>(BASE_API_URL + '/upload', {
-                    method: "POST",
+                    method: 'POST',
                     body: JSON.stringify(data),
                     headers: {
-                        "content-type": "application/json",
+                        'content-type': 'application/json',
                     },
                 })
                     .then((response) => {
@@ -146,20 +154,23 @@ export const doPushBatch = () => {
 };
 
 export const doPush = () => {
-    console.debug("doPush()");
+    console.debug('doPush()');
     getProperty(UPLOAD_LOCK_PROP).then((res) => {
         if (res !== undefined) {
             const diff = getDiff('seconds', DateTime.fromISO(res).toISO());
             if (diff > UPLOAD_LOCK_SEC) {
                 console.info(`Lock was >${UPLOAD_LOCK_SEC} seconds ago, deleting ...`);
                 deleteProperty(UPLOAD_LOCK_PROP).then(() => {
-                    console.info("Deleted upload lock");
+                    console.info('Deleted upload lock');
                 });
             }
             getProperty(UPLOAD_LOCK_PROP).then((locked_since) => {
                 console.debug(`Upload currently in progress, locked since ${locked_since}`);
             });
-            return { then: function() {} };
+            return {
+                then: function () {
+                },
+            };
         }
         upsertProperty(UPLOAD_LOCK_PROP, new Date().toISOString())
             .then(() => {
@@ -167,7 +178,7 @@ export const doPush = () => {
             })
             .then(() => {
                 deleteProperty(UPLOAD_LOCK_PROP).then(() => {
-                    console.debug("Completed upload");
+                    console.debug('Completed upload');
                 });
             });
     });
@@ -182,7 +193,7 @@ export const triggerPushLocations = () => {
         if (res !== undefined) {
             const date = DateTime.fromISO(res);
             const diff = getDiff('seconds', date.toISO());
-            console.log("diff", diff);
+            console.log('diff', diff);
             if (diff > 60) {
                 doPush();
             }

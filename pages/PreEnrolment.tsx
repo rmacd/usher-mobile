@@ -10,6 +10,8 @@ import {BASE_API_URL} from '@env';
 import {GenericError, PreEnrolmentResponse} from '../generated/UsherTypes';
 import Toast from 'react-native-toast-message';
 import {styles} from '../utils/LocalStyles';
+import {useSelector} from 'react-redux';
+import {RootState} from '../redux/UsherStore';
 
 export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
     const [projectPIN, setProjectPIN] = useState('');
@@ -19,7 +21,11 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     const [errorObject, setErrorObject] = useState({} as GenericError);
     const [preEnrolmentResponse, setPreEnrolmentResponse] = useState({} as PreEnrolmentResponse);
 
-    const {network, auth} = useContext(AppContext);
+    const {network} = useContext(AppContext);
+
+    const auth: string = useSelector((state: RootState) => {
+        return state.auth.token;
+    });
 
     useEffect(() => {
         const pin = projectPIN.replace(/[^0-9]/g, '');
@@ -38,7 +44,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
     }, [enableEnrol]);
 
     useEffect(() => {
-        setNetworkError(!(network && auth.csrf));
+        setNetworkError(!(network && auth));
     }, [network, auth]);
 
     useEffect(() => {
@@ -126,7 +132,7 @@ export const PreEnrolment = ({navigation}: { navigation: NativeStackNavigationPr
                             Network available: {(network) ? 'true' : 'false'}
                         </Text>
                         <Text style={styles.muted}>
-                            Token: {(auth && auth.csrf) ? 'available' : 'undefined'}
+                            Token: {(auth) ? 'available' : 'undefined'}
                         </Text>
                     </>
                 )}

@@ -23,30 +23,42 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
         console.error(`Public key for project ${project.projectId} does not exist`);
         return;
     }
-    if (debugPersistence) {console.debug("Persisting to project", project.projectId, location);}
+    if (debugPersistence) {
+        console.debug('Persisting to project', project.projectId, location);
+    }
     Aes.randomKey(32).then((key: string) => {
-        if (debugCrypt) {console.debug('key', key);}
+        if (debugCrypt) {
+            console.debug('key', key);
+        }
         // location cannot be gzipped until native functions accept byte[]
         encryptData(JSON.stringify(location), key)
             .then(({cipher, iv}) => {
-                if (debugCrypt) {console.debug('Encrypted:', cipher);}
-                if (debugCrypt) {console.debug('IV:', iv);}
+                if (debugCrypt) {
+                    console.debug('Encrypted:', cipher);
+                }
+                if (debugCrypt) {
+                    console.debug('IV:', iv);
+                }
                 Aes.hmac256(cipher, key).then(hash => {
-                    if (debugCrypt) {console.debug('HMAC', hash);}
+                    if (debugCrypt) {
+                        console.debug('HMAC', hash);
+                    }
                 });
                 const v = {
                     key: key,
                     iv: iv,
                     payload: cipher,
                 } as AESPayload;
-                if (debugCrypt) {console.debug("payload", v);}
+                if (debugCrypt) {
+                    console.debug('payload', v);
+                }
                 getDBConnection().then(
                     (conn: SQLiteDatabase) => {
                         writeEvent(conn, project.projectId, JSON.stringify(v))
                             .then(() => {
                                 triggerPushLocations();
                             });
-                    }
+                    },
                 );
             });
     });
@@ -56,7 +68,7 @@ export const persistLocation = (location: Location | string, project: Project) =
     const loc = location.valueOf() as Location;
     const event = {
         id: loc.uuid,
-        participantId: ",",
+        participantId: ',',
         latitude: loc.coords?.latitude,
         longitude: loc.coords?.longitude,
         altitude: loc.coords?.altitude,

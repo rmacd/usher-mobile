@@ -1,17 +1,16 @@
 import React from 'react';
-import {AuthResponse} from '../generated/UsherTypes';
+
+export interface DebugFlags {
+    debugNetwork?: boolean,
+    debugPersistence?: boolean,
+    debugDB?: boolean,
+    debugGeo?: boolean
+}
 
 const AppContext = React.createContext({
-    enroled: false,
-    setEnroled: (_val: boolean) => {
-    },
     network: false,
     isDarkMode: false,
-    auth: {} as AuthResponse,
-    refreshAuthCB: () => {
-    },
-    showSettings: false,
-    showSettingsCB: (_val: boolean) => {}
+    debugFlags: {} as DebugFlags,
 });
 
 export default AppContext;

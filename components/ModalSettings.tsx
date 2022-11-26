@@ -1,26 +1,23 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Modal, Text} from 'react-native-paper';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {hideSettings} from '../redux/reducers/ModalReducer';
+import {RootState} from '../redux/UsherStore';
 
 export const ModalSettings = () => {
 
-    const showModalSettings = useSelector((state) => {
-        console.log("state", state);
-        return state.settingsModal.showSettings;
+    const dispatch = useDispatch();
+
+    const showModalSettings = useSelector((state: RootState) => {
+        return state.modal.showSettings;
     });
-    // const {showSettings, showSettingsCB} = useContext(AppContext);
+
     const containerStyle = {backgroundColor: 'white', padding: 20};
 
-    const showSettingsCB = (_b?: boolean) => {};
-
-    useEffect(() => {
-        console.debug("showmodal", showModalSettings);
-        console.debug();
-    }, [showModalSettings]);
-
     return (
-        <Modal visible={showModalSettings} onDismiss={() => showSettingsCB(false)} contentContainerStyle={containerStyle}>
-            <Text>Example Modal.  Click outside this area to dismiss.</Text>
+        <Modal visible={showModalSettings}
+               onDismiss={() => dispatch(hideSettings())} contentContainerStyle={containerStyle}>
+            <Text>Modal settings</Text>
         </Modal>
     );
 };
