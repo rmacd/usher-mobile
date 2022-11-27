@@ -72,10 +72,19 @@ export default function ContextWrapper({children}: ContextProps) {
     }, [debugFlags?.debugPersistence]);
 
     useEffect(() => {
-        console.debug('Updated GRANTED permissions:', permissions.granted);
+        console.debug('Updated GRANTED permissions:', permissions.granted, "projects:", projects);
         // note that enum comparator can't be used
         if (permissions.granted.includes('GPS_FOREGROUND' as ProjectPermission) || permissions.granted.includes('GPS_BACKGROUND' as ProjectPermission)) {
             console.debug(`Permission to use GPS has been granted: setting up listeners`);
+
+            // clearing old listeners
+            BackgroundGeolocation.removeAllListeners(
+                () => {
+                    if (debugFlags?.debugGeo) {console.debug('BG: removed listeners');}
+                },
+                () => {
+                    throw new Error('BG: unable to remove listeners');
+                });
 
             // adding listener per project
             BackgroundGeolocation.addListener('location', (input: any) => {

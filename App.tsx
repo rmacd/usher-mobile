@@ -37,7 +37,7 @@ const App = () => {
         debugPersistence: true,
         debugDB: false,
         debugGeo: true,
-        debugCrypt: false,
+        debugCrypt: true,
     };
 
     const applicationSettings = {

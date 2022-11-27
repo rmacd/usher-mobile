@@ -246,6 +246,7 @@ export const doPushBatch = () => {
 
 export const doPush = () => {
     console.debug("Calling doPush()");
+    doPushBatch();
     getProperty(UPLOAD_LOCK_PROP).then((res) => {
         if (res !== undefined) {
             const diff = getDiff('seconds', DateTime.fromISO(res).toISO());
@@ -255,13 +256,15 @@ export const doPush = () => {
                     console.info('Deleted upload lock');
                 });
             }
-            getProperty(UPLOAD_LOCK_PROP).then((locked_since) => {
-                console.debug(`Upload currently in progress, locked since ${locked_since}`);
-            });
-            return {
-                then: function () {
-                },
-            };
+            else {
+                getProperty(UPLOAD_LOCK_PROP).then((locked_since) => {
+                    console.debug(`Upload currently in progress, locked since ${locked_since}`);
+                });
+                return {
+                    then: function () {
+                    },
+                };
+            }
         }
         upsertProperty(UPLOAD_LOCK_PROP, new Date().toISOString())
             .then(() => {

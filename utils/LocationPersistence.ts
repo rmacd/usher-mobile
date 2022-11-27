@@ -5,6 +5,8 @@ import {AESPayload, LocationEventDTO} from '../generated/UsherTypes';
 import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import {DebugFlags} from '../components/AppContext';
+// @ts-ignore
+import RSA, {Hash} from 'react-native-fast-rsa';
 
 const encryptData = (text: string, key: string) => {
     return Aes.randomKey(16).then(iv => {
@@ -28,34 +30,34 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
         if (debugFlags && debugFlags?.debugCrypt) {
             console.debug('key', key);
         }
-        // location cannot be gzipped until native functions accept byte[]
-        encryptData(JSON.stringify(location), key)
-            .then(({cipher, iv}) => {
-                if (debugFlags && debugFlags?.debugCrypt) {
-                    console.debug('Encrypted:', cipher);
-                    console.debug('IV:', iv);
-                }
-                Aes.hmac256(cipher, key).then(hash => {
-                    if (debugFlags && debugFlags?.debugCrypt) {
-                        console.debug('HMAC', hash);
-                    }
-                });
-                const v = {
-                    key: key,
-                    iv: iv,
-                    payload: cipher,
-                } as AESPayload;
-                if (debugFlags && debugFlags?.debugCrypt) {
-                    console.debug('payload', v);
-                }
-                getDBConnection().then(
-                    (conn: SQLiteDatabase) => {
-                        writeEvent(conn, project.projectId, JSON.stringify(v))
-                            .then(() => {
-                                triggerPushLocations();
-                            });
-                    },
-                );
+        RSA.encryptOAEP(key, '', Hash.SHA256, "-----BEGIN RSA PUBLIC KEY-----\n" + project.projectPublicKey + "\n-----END RSA PUBLIC KEY-----\n")
+            .then((encryptedKey: string) => {
+                console.debug("generated enckey", encryptedKey);
+                // location cannot be gzipped until native functions accept byte[]
+                encryptData(JSON.stringify(location), key)
+                    .then(({cipher, iv}) => {
+                        if (debugFlags && debugFlags?.debugCrypt) {
+                            console.debug('Encrypted:', cipher);
+                            console.debug('IV:', iv);
+                        }
+                        const v = {
+                            key: encryptedKey,
+                            iv: iv,
+                            payload: cipher,
+                            version: 1,
+                        } as AESPayload;
+                        if (debugFlags && debugFlags?.debugCrypt) {
+                            console.debug('payload', v);
+                        }
+                        getDBConnection().then(
+                            (conn: SQLiteDatabase) => {
+                                writeEvent(conn, project.projectId, JSON.stringify(Object.assign({}, v)))
+                                    .then(() => {
+                                        triggerPushLocations();
+                                    });
+                            },
+                        );
+                    });
             });
     });
 }

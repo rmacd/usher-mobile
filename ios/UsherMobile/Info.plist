@@ -42,12 +42,14 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Access to health sensors is required in order to identify motion and query data from wearables, if available.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Required if a project using this app wants to gather data in the backgound</string>
+	<string>Background access to the GPS is required so that location data can be collected even if the app is not in the foreground.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>With your permission, platform will forward your location data to specific research projects. For this to work, access to your location is required.</string>
+	<string>The platform requires access to your location data and, with your permission, will forward this data to specific research projects.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>With your permission, platform will forward motion data to research projects on which you are a participant. You can switch this off at any time.</string>
+	<string>Access to motion sensors is required in order to determine the type of movements (running, walking, etc) you are undertaking.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

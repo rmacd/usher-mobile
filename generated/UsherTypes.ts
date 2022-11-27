@@ -5,6 +5,7 @@ export interface AESPayload {
     key?: string;
     iv?: string;
     payload?: string;
+    version?: number;
 }
 
 export interface GenericError {
