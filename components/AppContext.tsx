@@ -4,7 +4,8 @@ export interface DebugFlags {
     debugNetwork?: boolean,
     debugPersistence?: boolean,
     debugDB?: boolean,
-    debugGeo?: boolean
+    debugGeo?: boolean,
+    debugCrypt?: boolean,
 }
 
 const AppContext = React.createContext({

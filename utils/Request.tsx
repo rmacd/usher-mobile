@@ -15,10 +15,10 @@ export async function request<TResponse>(
     } catch (error) {
         Toast.show({
             type: 'error',
-            text1: `${error} - please try later`,
+            text1: `Network error: please try later`,
             position: 'bottom',
             visibilityTime: 5000,
         });
-        throw (error);
+        return {} as TResponse;
     }
 }

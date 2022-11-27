@@ -94,10 +94,9 @@ function RenderPermissions(props: { allPermissions: PermissionDTO[] | undefined,
     );
 }
 
-export const ConfirmEnrolment = ({
-                                     navigation,
-                                     route,
-                                 }: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> }) => {
+export const ConfirmEnrolment = (
+    {navigation, route}: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> }
+) => {
 
     const preEnrolment = route.params?.project as PreEnrolmentResponse;
 

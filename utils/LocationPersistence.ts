@@ -4,9 +4,7 @@ import Aes from 'react-native-aes-crypto';
 import {AESPayload, LocationEventDTO} from '../generated/UsherTypes';
 import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
-
-const debugPersistence = false;
-const debugCrypt = false;
+import {DebugFlags} from '../components/AppContext';
 
 const encryptData = (text: string, key: string) => {
     return Aes.randomKey(16).then(iv => {
@@ -18,29 +16,27 @@ const encryptData = (text: string, key: string) => {
     });
 };
 
-function encryptAndWriteLocation(location: LocationEventDTO | string, project: Project) {
+function encryptAndWriteLocation(location: LocationEventDTO | string, project: Project, debugFlags: DebugFlags) {
     if (project.projectPublicKey === undefined) {
-        console.error(`Public key for project ${project.projectId} does not exist`);
+        console.info(`Public key for project ${project.projectId} does not exist`);
         return;
     }
-    if (debugPersistence) {
+    if (debugFlags && debugFlags?.debugPersistence) {
         console.debug('Persisting to project', project.projectId, location);
     }
     Aes.randomKey(32).then((key: string) => {
-        if (debugCrypt) {
+        if (debugFlags && debugFlags?.debugCrypt) {
             console.debug('key', key);
         }
         // location cannot be gzipped until native functions accept byte[]
         encryptData(JSON.stringify(location), key)
             .then(({cipher, iv}) => {
-                if (debugCrypt) {
+                if (debugFlags && debugFlags?.debugCrypt) {
                     console.debug('Encrypted:', cipher);
-                }
-                if (debugCrypt) {
                     console.debug('IV:', iv);
                 }
                 Aes.hmac256(cipher, key).then(hash => {
-                    if (debugCrypt) {
+                    if (debugFlags && debugFlags?.debugCrypt) {
                         console.debug('HMAC', hash);
                     }
                 });
@@ -49,7 +45,7 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
                     iv: iv,
                     payload: cipher,
                 } as AESPayload;
-                if (debugCrypt) {
+                if (debugFlags && debugFlags?.debugCrypt) {
                     console.debug('payload', v);
                 }
                 getDBConnection().then(
@@ -64,11 +60,11 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
     });
 }
 
-export const persistLocation = (location: Location | string, project: Project) => {
+export const persistLocation = (location: Location | string, project: Project, debugFlags: DebugFlags) => {
     const loc = location.valueOf() as Location;
     const event = {
         id: loc.uuid,
-        participantId: ',',
+        participantId: '--NULL--',
         latitude: loc.coords?.latitude,
         longitude: loc.coords?.longitude,
         altitude: loc.coords?.altitude,
@@ -86,5 +82,5 @@ export const persistLocation = (location: Location | string, project: Project) =
         activityAccuracy: loc.activity?.confidence,
         mock: loc.mock,
     } as LocationEventDTO;
-    encryptAndWriteLocation(event, project);
+    return encryptAndWriteLocation(event, project, debugFlags);
 };

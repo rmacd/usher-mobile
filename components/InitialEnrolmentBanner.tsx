@@ -15,7 +15,7 @@ export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNa
 
     const dispatch = useDispatch();
     const auth: string = useSelector((state: RootState) => {
-        console.debug('updated enrolmentBannerState', state);
+        console.debug('Updated state', state);
         return state.auth.token;
     });
 
@@ -38,7 +38,6 @@ export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNa
         console.debug('Calling first load on update auth token');
         updateAuthTokenCallback();
     }, [updateAuthTokenCallback]);
-
 
     return (
         <>

@@ -10,6 +10,11 @@ import {Provider} from 'react-redux';
 import {store} from './redux/UsherStore';
 import {UsherMenu} from './components/UsherMenu';
 import ContextWrapper from './components/ContextWrapper';
+import {BASE_API_URL} from '@env';
+import {ConfirmResetApp} from './components/ConfirmResetApp';
+import {InspectData} from './components/InspectData';
+import {createTables, getDBConnection} from './utils/DAO';
+import {SQLiteDatabase} from 'react-native-sqlite-storage';
 
 const App = () => {
     // application startup:
@@ -25,12 +30,14 @@ const App = () => {
     const netInfo = useNetInfo();
     const [hasNetwork, setHasNetwork] = useState(false);
     const isDarkMode = useColorScheme() === 'dark';
+    const [hasRunInitialHooks, setHasRunInitialHooks] = useState(false);
 
     const debugFlags = {
-        debugNetwork: false,
-        debugPersistence: false,
+        debugNetwork: true,
+        debugPersistence: true,
         debugDB: false,
         debugGeo: true,
+        debugCrypt: false,
     };
 
     const applicationSettings = {
@@ -43,6 +50,26 @@ const App = () => {
         setHasNetwork((netInfo.isConnected) ? netInfo.isConnected : false);
     }, [netInfo.isConnected]);
 
+    useEffect(() => {
+        console.debug(`Using endpoint ${BASE_API_URL}`);
+    }, []);
+
+    useEffect(() => {
+        if (debugFlags?.debugDB) {console.log('Running setup hooks');}
+        getDBConnection().then(
+            (conn: SQLiteDatabase) => {
+                return createTables(conn);
+            },
+        ).then(() => {
+            if (debugFlags?.debugDB) {console.debug('DB available');}
+            setHasRunInitialHooks(true);
+        });
+    }, [debugFlags?.debugDB]);
+
+    if (!hasRunInitialHooks) {
+        return (<></>);
+    }
+
     return (
         <AppContext.Provider value={applicationSettings}>
             <Provider store={store}>
@@ -51,7 +78,11 @@ const App = () => {
                     <UsherStack/>
                     <Footer/>
                     <Toast/>
+
+                    {/*any modals*/}
                     <ModalSettings/>
+                    <InspectData/>
+                    <ConfirmResetApp/>
                 </ContextWrapper>
             </Provider>
         </AppContext.Provider>

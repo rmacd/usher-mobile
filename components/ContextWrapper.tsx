@@ -14,21 +14,6 @@ export default function ContextWrapper({children}: ContextProps) {
 
     const {debugFlags} = useContext(AppContext);
 
-    useEffect(() => {
-        if (debugFlags?.debugDB) {
-            console.log('Running setup hooks');
-        }
-        getDBConnection().then(
-            (conn: SQLiteDatabase) => {
-                return createTables(conn);
-            },
-        ).then(() => {
-            if (debugFlags?.debugDB) {
-                console.debug('DB available');
-            }
-        });
-    }, [debugFlags?.debugDB]);
-
     // debug - print db
     useEffect(() => {
         if (!debugFlags?.debugDB) {
@@ -87,7 +72,7 @@ export default function ContextWrapper({children}: ContextProps) {
                             console.info(`Unable to find project or project ID for key ${projKey}`);
                             return;
                         }
-                        persistLocation(input, proj);
+                        persistLocation(input, proj, debugFlags);
                     });
                 }
             });
@@ -95,7 +80,7 @@ export default function ContextWrapper({children}: ContextProps) {
         BackgroundGeolocation.ready(
             {
                 maxRecordsToPersist: 0,
-                debug: true,
+                debug: false,
                 desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_NAVIGATION,
                 distanceFilter: 10,
                 stationaryRadius: 25,

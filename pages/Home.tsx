@@ -3,6 +3,7 @@ import {View} from 'react-native';
 import {InitialEnrolmentBanner} from '../components/InitialEnrolmentBanner';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {EnrolledProjects} from '../components/EnrolledProjects';
 
 export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
 
@@ -28,6 +29,9 @@ export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> 
                     */}
 
                 <View>
+
+                    <EnrolledProjects navigation={navigation}/>
+
                     {Boolean(!enroled) && (
                         <InitialEnrolmentBanner navigation={navigation}/>
                     )}
