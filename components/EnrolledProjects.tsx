@@ -5,6 +5,8 @@ import {ASYNC_DB_PROJ_BASE} from '../utils/Const';
 import AppContext from './AppContext';
 import {Button, Card, Paragraph, Text, Title} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useSelector} from 'react-redux';
+import {RootState} from '../redux/UsherStore';
 
 function EnrolledProject(props: {project: Project, navigation: NativeStackNavigationProp<any>}) {
 
@@ -28,25 +30,9 @@ export const EnrolledProjects = (
     {navigation}: { navigation: NativeStackNavigationProp<any> }
 ) => {
 
-    const {debugFlags} = useContext(AppContext);
-    const [projects, setProjects] = useState([] as Project[]);
-
-    useEffect(() => {
-        let projList = [] as Project[];
-        AsyncStorage.getAllKeys((_error, result) => {
-            return result?.filter(function (r) {
-                r.startsWith(ASYNC_DB_PROJ_BASE);
-            }).keys;
-        }).then((res: readonly string[]) => {
-            for (const projKey of res) {
-                AsyncStorage.getItem(projKey, (_itemErr, itemVal) => {
-                    projList.push(JSON.parse(itemVal || '') as Project);
-                });
-            }
-        }).then(() => {
-            setProjects(projList);
-        });
-    }, []);
+    const projects = useSelector((state: RootState) => {
+        return state.projects.projects;
+    });
 
     if (projects.length < 1) {
         return (<></>);
@@ -60,6 +46,7 @@ export const EnrolledProjects = (
             {projects.map((project, key) => (
                 <EnrolledProject key={project.projectId + key} project={project} navigation={navigation}/>
             ))}
+
         </>
     );
 };

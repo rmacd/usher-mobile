@@ -184,7 +184,7 @@ export const ConfirmEnrolment = (
                     text1: 'Completed enrolment',
                     text2: `Project ID: ${proj.projectId}`,
                 });
-                navigation.navigate('CompleteEnrolment', {project: proj});
+                navigation.navigate('Home');
             });
     }
 

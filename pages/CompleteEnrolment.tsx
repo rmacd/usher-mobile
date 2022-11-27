@@ -2,7 +2,7 @@ import React from 'react';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {View} from 'react-native';
 import {Paragraph, Title} from 'react-native-paper';
-import {ManagePermissions} from '../components/ManagePermissions';
+import {ManagePermissionsForProject} from '../components/ManagePermissionsForProject';
 import {RouteProp} from '@react-navigation/native';
 import {Project} from '../components/EnrolmentManager';
 
@@ -23,7 +23,7 @@ export const CompleteEnrolment = ({route}: { route: RouteProp<any> }) => {
                     For each option you select, your phone may prompt you to
                     permit access to the feature via your device settings.
                 </Paragraph>
-                <ManagePermissions project={project}/>
+                <ManagePermissionsForProject project={project}/>
             </View>
         </DefaultViewWrapper>
     );

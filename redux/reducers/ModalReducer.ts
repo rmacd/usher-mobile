@@ -42,7 +42,7 @@ export const modalSlice = createSlice({
 export const {
     showSettings, hideSettings,
     showResetApp, hideResetApp,
-    showDatabase, hideDatabase
+    showDatabase, hideDatabase,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

@@ -14,7 +14,7 @@ import {BASE_API_URL} from '@env';
 // luxon cheatsheet https://moment.github.io/luxon/demo/global.html
 
 enablePromise(true);
-DEBUG(true);
+DEBUG(false);
 
 const DATABASE_NAME = 'usher-data.sqlite';
 const LAST_UPLOAD_PROP = 'last_upload';
@@ -70,6 +70,7 @@ export const createTables = async (db: SQLiteDatabase) => {
 export const dropDatabase = async () => {
     console.debug("Calling dropDatabase()");
     console.info('Deleting database');
+    console.warn("function not implemented");
 };
 
 export const writeEvent = async (db: SQLiteDatabase, project: string, value: string) => {

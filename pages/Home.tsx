@@ -4,11 +4,9 @@ import {InitialEnrolmentBanner} from '../components/InitialEnrolmentBanner';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {EnrolledProjects} from '../components/EnrolledProjects';
+import {PermissionsBanner} from '../components/PermissionsBanner';
 
 export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
-
-    // todo update with redux
-    const enroled = false;
 
     return (
         <DefaultViewWrapper>
@@ -30,11 +28,10 @@ export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> 
 
                 <View>
 
+                    <PermissionsBanner navigation={navigation}/>
                     <EnrolledProjects navigation={navigation}/>
+                    <InitialEnrolmentBanner navigation={navigation}/>
 
-                    {Boolean(!enroled) && (
-                        <InitialEnrolmentBanner navigation={navigation}/>
-                    )}
                 </View>
             </>
         </DefaultViewWrapper>

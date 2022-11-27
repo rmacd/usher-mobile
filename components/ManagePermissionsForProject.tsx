@@ -7,7 +7,7 @@ import Toast from 'react-native-toast-message';
 import BackgroundGeolocation, {State} from 'react-native-background-geolocation';
 
 // displays all permissions for a particular app
-export const ManagePermissions = (props: { project: Project }) => {
+export const ManagePermissionsForProject = (props: { project: Project }) => {
 
     const styles = StyleSheet.create({
         interactiveArea: {

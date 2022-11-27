@@ -52,11 +52,11 @@ export const ProjectDetails = (
                         If you wish to remove the project from your device and unenrol from the
                         project, you can do so here.
                     </Paragraph>
-                    <Paragraph>
-                        Alternatively, you can temporarily pause enrolment (ie pause data collection
-                        for this project).
-                    </Paragraph>
-                    <Button onPress={() => setShowConfirmDelete(true)}
+                    {/*<Paragraph>*/}
+                    {/*    Alternatively, you can temporarily pause enrolment (ie pause data collection*/}
+                    {/*    for this project).*/}
+                    {/*</Paragraph>*/}
+                    <Button onPress={() => setShowConfirmDelete(true)} style={{marginVertical: 10}}
                             mode={'outlined'} icon={'delete'} color={Colors.red300}>Unenrol and delete data</Button>
                 </View>
             </DefaultViewWrapper>

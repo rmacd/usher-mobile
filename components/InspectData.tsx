@@ -7,6 +7,7 @@ import JSONTree from 'react-native-json-tree';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ScrollView} from 'react-native';
 import {getEvents} from '../utils/DAO';
+import {UsherEventDTO} from '../generated/UsherTypes';
 
 export const InspectData = () => {
 
@@ -30,13 +31,13 @@ export const InspectData = () => {
                         } catch (e) {
                             parsed = val;
                         }
-                        setData([...data, parsed]);
+                        setData([parsed]);
                     });
             }
         });
     }, []);
 
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([] as UsherEventDTO[]);
     useEffect(() => {
         getEvents().then((res) => {
             setEvents(res || []);

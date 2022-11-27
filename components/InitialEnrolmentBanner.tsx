@@ -15,8 +15,10 @@ export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNa
 
     const dispatch = useDispatch();
     const auth: string = useSelector((state: RootState) => {
-        console.debug('Updated state', state);
         return state.auth.token;
+    });
+    const projects = useSelector((state: RootState) => {
+        return state.projects.projects;
     });
 
     const updateAuthTokenCallback = useCallback(() => {
@@ -35,7 +37,6 @@ export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNa
     }, [debugFlags?.debugNetwork, dispatch, network]);
 
     useEffect(() => {
-        console.debug('Calling first load on update auth token');
         updateAuthTokenCallback();
     }, [updateAuthTokenCallback]);
 
@@ -43,8 +44,15 @@ export const InitialEnrolmentBanner = ({navigation}: { navigation: NativeStackNa
         <>
             <Card>
                 <Card.Content style={{shadowRadius: 3, backgroundColor: Colors.grey300}}>
-                    <Title>Not enroled</Title>
-                    <Paragraph>You are currently not enroled on any projects.</Paragraph>
+                    <Title>{(projects.length > 0) ? 'Add project' : 'Not enroled'}</Title>
+
+                    {Boolean(projects.length > 0) && (
+                        <Paragraph>Note you can enrol on multiple projects at the same time.</Paragraph>
+                    )}
+                    {Boolean(projects.length === 0) && (
+                        <Paragraph>You are currently not enroled on any projects.</Paragraph>
+                    )}
+
                     {Boolean(network && auth) && (
                         <Button
                             onPress={() => navigation.navigate('PreEnrolment')}
