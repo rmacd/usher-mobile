@@ -28,7 +28,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -44,6 +44,8 @@
 	</dict>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Access to health sensors is required in order to identify motion and query data from wearables, if available.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Access to update health data is required so that any recorded sensor data can be retrieved later.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Background access to the GPS is required so that location data can be collected even if the app is not in the foreground.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
