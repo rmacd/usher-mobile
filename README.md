@@ -29,7 +29,8 @@ The following permissions are required on devices
 
 | **iOS permission name**                      | **Description**                                                                                                                     |
 |----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| NSLocationWhenInUseUsageDescription          | The platform requires access to your location data and, with your permission, will forward this data to specific research projects. |
 | NSHealthShareUsageDescription                | Access to health sensors is required in order to identify motion and query data from wearables, if available.                       |
+| NSHealthUpdateUsageDescription               | Access to update health data is required so that any recorded sensor data can be retrieved later.                                   |
 | NSLocationAlwaysAndWhenInUseUsageDescription | Background access to the GPS is required so that location data can be collected even if the app is not in the foreground.           |
+| NSLocationWhenInUseUsageDescription          | The platform requires access to your location data and, with your permission, will forward this data to specific research projects. |
 | NSMotionUsageDescription                     | Access to motion sensors is required in order to determine the type of movements (running, walking, etc) you are undertaking.       |
