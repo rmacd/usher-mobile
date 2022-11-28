@@ -2,12 +2,12 @@ import React, {useEffect, useState} from 'react';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../redux/UsherStore';
-import {Button, Card, Chip, Colors, Divider, Paragraph, Surface, Text, Title} from 'react-native-paper';
+import {Button, Colors, Surface, Text} from 'react-native-paper';
 import {StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export const PermissionsBanner = (
-    {navigation}: { navigation: NativeStackNavigationProp<any> }
+    {navigation}: { navigation: NativeStackNavigationProp<any> },
 ) => {
 
     const permissions = useSelector((state: RootState) => {

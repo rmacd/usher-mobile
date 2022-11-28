@@ -9,7 +9,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const ProjectDetails = (
-    {navigation, route}: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> }
+    {navigation, route}: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> },
 ) => {
 
     const INITIAL_EVENTS = 0;
@@ -29,10 +29,10 @@ export const ProjectDetails = (
     function callDeleteProject(id: string) {
         console.debug('Deleting enrolment for project', id);
         deleteProject(id).then(() => {
-            console.debug("Removed entries from DB");
+            console.debug('Removed entries from DB');
             AsyncStorage.removeItem(`${ASYNC_DB_PROJ_BASE}_${id}`)
                 .then(() => {
-                    console.debug("Removed entries from AsyncStorage");
+                    console.debug('Removed entries from AsyncStorage');
                 });
         }).then(() => {
             navigation.navigate('Home');

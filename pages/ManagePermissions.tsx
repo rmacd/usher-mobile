@@ -56,8 +56,7 @@ export const ManagePermissions = () => {
         const p = v as ProjectPermission;
         if (isEnabled(p)) {
             dispatch(refusePermission(p));
-        }
-        else {
+        } else {
             dispatch(grantPermission(p));
         }
     };

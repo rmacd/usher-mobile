@@ -1,7 +1,7 @@
 import {Location} from 'react-native-background-geolocation';
 import {Project} from '../components/EnrolmentManager';
 import Aes from 'react-native-aes-crypto';
-import {AESPayload, EventType, LocationEventDTO, PermissionDTO, ProjectPermission} from '../generated/UsherTypes';
+import {AESPayload, EventType, LocationEventDTO} from '../generated/UsherTypes';
 import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import {DebugFlags} from '../components/AppContext';
@@ -30,9 +30,9 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
         if (debugFlags && debugFlags?.debugCrypt) {
             console.debug('key', key);
         }
-        RSA.encryptOAEP(key, '', Hash.SHA256, "-----BEGIN RSA PUBLIC KEY-----\n" + project.projectPublicKey + "\n-----END RSA PUBLIC KEY-----\n")
+        RSA.encryptOAEP(key, '', Hash.SHA256, '-----BEGIN RSA PUBLIC KEY-----\n' + project.projectPublicKey + '\n-----END RSA PUBLIC KEY-----\n')
             .then((encryptedKey: string) => {
-                console.debug("generated enckey", encryptedKey);
+                console.debug('generated enckey', encryptedKey);
                 // location cannot be gzipped until native functions accept byte[]
                 encryptData(JSON.stringify(location), key)
                     .then(({cipher, iv}) => {

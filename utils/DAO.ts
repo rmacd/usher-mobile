@@ -29,7 +29,7 @@ const dbParams: DatabaseParams = {
 };
 
 export const getDBConnection = async () => {
-    console.debug("Calling getDBConnection()");
+    console.debug('Calling getDBConnection()');
     return openDatabase({...dbParams}, () => {
     }, (e) => {
         throw Error(`Error in getDBConnection ${e.code} - ${e.message}`);
@@ -37,7 +37,8 @@ export const getDBConnection = async () => {
 };
 
 export const createTables = async (db: SQLiteDatabase) => {
-    console.debug("Calling createTables()");
+    console.debug('Calling createTables()');
+
     // await db.executeSql(`DROP TABLE events;`);
 
     function throwError(s: string, e: SQLError) {
@@ -51,26 +52,32 @@ export const createTables = async (db: SQLiteDatabase) => {
                              timestamp DATE NOT NULL,
                              project   TEXT NOT NULL,
                              value     TEXT NOT NULL
-                         );`).catch((e) => {throwError("creating events", e);});
+                         );`).catch((e) => {
+        throwError('creating events', e);
+    });
     await db.executeSql(`CREATE TABLE IF NOT EXISTS global_permissions
                          (
                              permission TEXT UNIQUE NOT NULL,
                              value      BOOLEAN     NOT NULL
-                         );`).catch((e) => {throwError("creating events", e);});
+                         );`).catch((e) => {
+        throwError('creating events', e);
+    });
     // await db.executeSql(`DROP TABLE metadata;`);
     await db.executeSql(`CREATE TABLE IF NOT EXISTS metadata
                          (
                              property TEXT UNIQUE NOT NULL,
                              value    TEXT        NOT NULL
-                         );`).catch((e) => {throwError("creating events", e);});
+                         );`).catch((e) => {
+        throwError('creating events', e);
+    });
 
     deleteProperty(UPLOAD_LOCK_PROP);
 };
 
 export const dropDatabase = async () => {
-    console.debug("Calling dropDatabase()");
+    console.debug('Calling dropDatabase()');
     console.info('Deleting database');
-    console.warn("function not implemented");
+    console.warn('function not implemented');
 };
 
 export const writeEvent = async (db: SQLiteDatabase, project: string, value: string) => {
@@ -92,7 +99,7 @@ export const writeEvent = async (db: SQLiteDatabase, project: string, value: str
 };
 
 export const deleteProject = async (projectId: string) => {
-    console.debug("Calling deleteProject()");
+    console.debug('Calling deleteProject()');
     getDBConnection().then((db) => {
         db.executeSql(`DELETE
                        FROM events
@@ -106,7 +113,7 @@ export const getEventsCount = async (projectId: string) => {
 };
 
 export const getEvents = () => {
-    console.debug("Calling getEvents()");
+    console.debug('Calling getEvents()');
     return getDBConnection()
         .then((db) => {
             return db.transaction((tx) => {
@@ -174,29 +181,29 @@ export const deleteProperty = async (p: string) => {
     console.debug(`Calling deleteProperty() with argument ${p}`);
     getProperty(p)
         .then((res) => {
-        if (res !== undefined) {
-            getDBConnection().then((db) => {
-                db.transaction((tx) => {
-                    tx.executeSql(`DELETE
-                                   FROM metadata
-                                   WHERE property = ?;`, [p]);
+            if (res !== undefined) {
+                getDBConnection().then((db) => {
+                    db.transaction((tx) => {
+                        tx.executeSql(`DELETE
+                                       FROM metadata
+                                       WHERE property = ?;`, [p]);
+                    }).catch((e) => {
+                        console.info(`Error executing transaction ${e}`);
+                        throw e;
+                    });
                 }).catch((e) => {
-                    console.info(`Error executing transaction ${e}`);
+                    console.info(`Error getting connection ${e}`);
                     throw e;
                 });
-            }).catch((e) => {
-                console.info(`Error getting connection ${e}`);
-                throw e;
-            });
-        }
-    }).catch((e) => {
+            }
+        }).catch((e) => {
         console.info(`Error getting property ${e}`);
         throw e;
     });
 };
 
 export const deleteEvent = (id: string) => {
-    console.debug("Calling deleteEvent()");
+    console.debug('Calling deleteEvent()');
     getDBConnection().then((db) => {
         db.transaction((tx) => {
             tx.executeSql(`DELETE
@@ -211,7 +218,7 @@ export const deleteEvent = (id: string) => {
 
 // do not call this without a lock
 export const doPushBatch = () => {
-    console.debug("Calling doPushBatch()");
+    console.debug('Calling doPushBatch()');
     getDBConnection().then((db) => {
         db.transaction((tx) => {
             tx.executeSql(`SELECT *
@@ -245,7 +252,7 @@ export const doPushBatch = () => {
 };
 
 export const doPush = () => {
-    console.debug("Calling doPush()");
+    console.debug('Calling doPush()');
     doPushBatch();
     getProperty(UPLOAD_LOCK_PROP).then((res) => {
         if (res !== undefined) {
@@ -255,8 +262,7 @@ export const doPush = () => {
                 deleteProperty(UPLOAD_LOCK_PROP).then(() => {
                     console.info('Deleted upload lock');
                 });
-            }
-            else {
+            } else {
                 getProperty(UPLOAD_LOCK_PROP).then((locked_since) => {
                     console.debug(`Upload currently in progress, locked since ${locked_since}`);
                 });
@@ -286,7 +292,7 @@ export const getDiff = (unit: DurationUnit, input: string) => {
 };
 
 export const triggerPushLocations = () => {
-    console.debug("Calling triggerPushLocations()");
+    console.debug('Calling triggerPushLocations()');
     getProperty(LAST_UPLOAD_PROP).then((res) => {
         if (res !== undefined) {
             const date = DateTime.fromISO(res);

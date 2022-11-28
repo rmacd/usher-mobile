@@ -41,11 +41,15 @@ export default function ContextWrapper({children}: ContextProps) {
 
     const [completedVersionCheck, setCompletedVersionCheck] = useState(false);
     useEffect(() => {
-        if (!network || completedVersionCheck) {return;}
+        if (!network || completedVersionCheck) {
+            return;
+        }
         const buildVersion = VersionNumber.buildVersion;
         request<VersionDTO>(`${BASE_API_URL}/version`, {})
             .then((version) => {
-                if (!version) {return;}
+                if (!version) {
+                    return;
+                }
                 if (version.minVersion && version.minVersion > parseInt(buildVersion, 10)) {
                     Toast.show({
                         type: 'error',
@@ -59,7 +63,9 @@ export default function ContextWrapper({children}: ContextProps) {
 
     // load projects from asyncstorage into redux state
     useEffect(() => {
-        if (!dispatch) {return;}
+        if (!dispatch) {
+            return;
+        }
         AsyncStorage.getAllKeys((_error, result) => {
             return result?.filter(function (r) {
                 r.startsWith(ASYNC_DB_PROJ_BASE);
@@ -76,7 +82,7 @@ export default function ContextWrapper({children}: ContextProps) {
     }, [dispatch]);
 
     useEffect(() => {
-        console.debug("Got projects from redux:", projects);
+        console.debug('Got projects from redux:', projects);
     }, [projects]);
 
     useEffect(() => {
@@ -103,7 +109,7 @@ export default function ContextWrapper({children}: ContextProps) {
     }
 
     useEffect(() => {
-        console.debug('Updated GRANTED permissions:', permissions.granted, "projects:", projects);
+        console.debug('Updated GRANTED permissions:', permissions.granted, 'projects:', projects);
         // note that enum comparator can't be used
         if (permissions.granted.includes('GPS_FOREGROUND' as ProjectPermission) || permissions.granted.includes('GPS_BACKGROUND' as ProjectPermission)) {
             console.debug(`Permission to use GPS has been granted: setting up listeners`);
@@ -111,7 +117,9 @@ export default function ContextWrapper({children}: ContextProps) {
             // clearing old listeners
             BackgroundGeolocation.removeAllListeners(
                 () => {
-                    if (debugFlags?.debugGeo) {console.debug('BG: removed listeners');}
+                    if (debugFlags?.debugGeo) {
+                        console.debug('BG: removed listeners');
+                    }
                 },
                 () => {
                     throw new Error('BG: unable to remove listeners');
@@ -160,7 +168,9 @@ export default function ContextWrapper({children}: ContextProps) {
             console.debug(`Permission has NOT been granted to use GPS: disabling all listeners`);
             BackgroundGeolocation.removeAllListeners(
                 () => {
-                    if (debugFlags?.debugGeo) {console.debug('BG: removed listeners');}
+                    if (debugFlags?.debugGeo) {
+                        console.debug('BG: removed listeners');
+                    }
                 },
                 () => {
                     throw new Error('BG: unable to remove listeners');
@@ -170,13 +180,13 @@ export default function ContextWrapper({children}: ContextProps) {
     }, [debugFlags?.debugGeo, permissions.granted]);
 
     const reRegisterListeners = () => {
-        console.debug("Re-registering all applicable listeners");
+        console.debug('Re-registering all applicable listeners');
         BackgroundGeolocation.addListener('enabledchange', (input: any) => {
-            console.debug("Got geo state change", input);
+            console.debug('Got geo state change', input);
         });
         // register for changes to geofences
         BackgroundGeolocation.addListener('geofenceschange', (input: any) => {
-            console.debug("Got geofences change", input);
+            console.debug('Got geofences change', input);
         });
     };
 

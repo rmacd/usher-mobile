@@ -1,14 +1,11 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React from 'react';
 import {Project} from './EnrolmentManager';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ASYNC_DB_PROJ_BASE} from '../utils/Const';
-import AppContext from './AppContext';
 import {Button, Card, Paragraph, Text, Title} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../redux/UsherStore';
 
-function EnrolledProject(props: {project: Project, navigation: NativeStackNavigationProp<any>}) {
+function EnrolledProject(props: { project: Project, navigation: NativeStackNavigationProp<any> }) {
 
     if (props.project.projectId === undefined || props.navigation === undefined) {
         return (<></>);
@@ -19,7 +16,9 @@ function EnrolledProject(props: {project: Project, navigation: NativeStackNaviga
             <Card key={`card_${props.project.projectId}`}>
                 <Card.Content>
                     <Paragraph>{props.project.projectId}</Paragraph>
-                    <Button onPress={() => props.navigation.navigate('ProjectDetails', {projectId: props.project.projectId})} mode={"outlined"}>Details</Button>
+                    <Button
+                        onPress={() => props.navigation.navigate('ProjectDetails', {projectId: props.project.projectId})}
+                        mode={'outlined'}>Details</Button>
                 </Card.Content>
             </Card>
         </>
@@ -27,7 +26,7 @@ function EnrolledProject(props: {project: Project, navigation: NativeStackNaviga
 }
 
 export const EnrolledProjects = (
-    {navigation}: { navigation: NativeStackNavigationProp<any> }
+    {navigation}: { navigation: NativeStackNavigationProp<any> },
 ) => {
 
     const projects = useSelector((state: RootState) => {

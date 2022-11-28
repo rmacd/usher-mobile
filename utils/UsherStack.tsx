@@ -18,8 +18,8 @@ export const UsherStack = () => {
                           options={{headerTitle: 'Pre-enrolment'}}/>
             <Stack.Screen name={'ConfirmEnrolment'} component={ConfirmEnrolment}
                           options={{headerTitle: 'Confirm Enrolment'}}/>
-            <Stack.Screen name={"ProjectDetails"} component={ProjectDetails}
-                          options={{headerTitle: "Project Details"}} />
+            <Stack.Screen name={'ProjectDetails'} component={ProjectDetails}
+                          options={{headerTitle: 'Project Details'}}/>
             <Stack.Screen name={'ManagePermissions'} component={ManagePermissions}
                           options={{headerTitle: 'Manage permissions'}}/>
         </Stack.Navigator>

@@ -14,7 +14,7 @@ export const projectsSlice = createSlice({
     initialState,
     reducers: {
         addProject: {
-            reducer: (state, action: PayloadAction<{p: Project}>) => {
+            reducer: (state, action: PayloadAction<{ p: Project }>) => {
                 state.projects = Array.from(new Set<Project>([...state.projects, action.payload.p]));
             },
             prepare: (p: Project) => {

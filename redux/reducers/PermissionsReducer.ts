@@ -1,5 +1,5 @@
+import type {PayloadAction} from '@reduxjs/toolkit';
 import {createSlice} from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import {ProjectPermission} from '../../generated/UsherTypes';
 
 export interface Permissions {
@@ -17,7 +17,7 @@ export const permissionsSlice = createSlice({
     initialState,
     reducers: {
         requestPermission: {
-            reducer: (state, action: PayloadAction<{p: ProjectPermission}>) => {
+            reducer: (state, action: PayloadAction<{ p: ProjectPermission }>) => {
                 state.requested = Array.from(new Set<ProjectPermission>([...state.requested, action.payload.p]));
             },
             prepare: (p: ProjectPermission) => {
@@ -25,7 +25,7 @@ export const permissionsSlice = createSlice({
             },
         },
         requestPermissions: {
-            reducer: (state, action: PayloadAction<{p: ProjectPermission[]}>) => {
+            reducer: (state, action: PayloadAction<{ p: ProjectPermission[] }>) => {
                 state.requested = Array.from(new Set<ProjectPermission>([...state.requested, ...action.payload.p]));
             },
             prepare: (p: ProjectPermission[]) => {
@@ -33,7 +33,7 @@ export const permissionsSlice = createSlice({
             },
         },
         grantPermission: {
-            reducer: (state, action: PayloadAction<{p: ProjectPermission}>) => {
+            reducer: (state, action: PayloadAction<{ p: ProjectPermission }>) => {
                 state.granted = Array.from(new Set<ProjectPermission>([...state.granted, action.payload.p]));
             },
             prepare: (p: ProjectPermission) => {
@@ -41,7 +41,7 @@ export const permissionsSlice = createSlice({
             },
         },
         refusePermission: {
-            reducer: (state, action: PayloadAction<{p: ProjectPermission}>) => {
+            reducer: (state, action: PayloadAction<{ p: ProjectPermission }>) => {
                 state.granted = Array.from(new Set<ProjectPermission>([...state.granted]))
                     .filter((a) => {
                         return a !== action.payload.p;
@@ -52,7 +52,7 @@ export const permissionsSlice = createSlice({
             },
         },
         refusePermissions: {
-            reducer: (state, action: PayloadAction<{p: ProjectPermission[]}>) => {
+            reducer: (state, action: PayloadAction<{ p: ProjectPermission[] }>) => {
                 state.granted = Array.from(new Set<ProjectPermission>([...state.granted]))
                     .filter((a) => {
                         return !(action.payload.p.includes(a));
@@ -65,6 +65,12 @@ export const permissionsSlice = createSlice({
     },
 });
 
-export const {requestPermission, grantPermission, requestPermissions, refusePermission, refusePermissions} = permissionsSlice.actions;
+export const {
+    requestPermission,
+    grantPermission,
+    requestPermissions,
+    refusePermission,
+    refusePermissions,
+} = permissionsSlice.actions;
 
 export default permissionsSlice.reducer;

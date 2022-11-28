@@ -16,10 +16,10 @@ export const ConfirmResetApp = () => {
     });
 
     const callResetApp = () => {
-        console.info("Resetting app");
-        return AsyncStorage.getAllKeys((_err,result) => {
+        console.info('Resetting app');
+        return AsyncStorage.getAllKeys((_err, result) => {
             AsyncStorage.multiRemove(result as string[]).then(() => {
-                console.info("Removed all AsyncStorage data");
+                console.info('Removed all AsyncStorage data');
             });
         }).then(() => {
             return dropDatabase();
@@ -44,6 +44,6 @@ export const ConfirmResetApp = () => {
                 <Button onPress={() => dispatch(hideResetApp())}>Cancel</Button>
             </Dialog.Actions>
         </Dialog>
-    )
+    );
 
-}
+};
