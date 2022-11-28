@@ -87,7 +87,7 @@ export const persistLocation = (location: Location | string, project: Project, d
         headingAccuracy: loc.coords?.heading_accuracy,
         batteryCharging: loc.battery?.is_charging,
         batteryLevel: loc.battery?.level,
-        activity: loc.activity?.activity,
+        activity: loc.activity?.type,
         activityAccuracy: loc.activity?.confidence,
         mock: loc.mock,
     } as LocationEventDTO;
