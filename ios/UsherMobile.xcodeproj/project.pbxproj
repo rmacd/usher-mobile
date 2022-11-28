@@ -496,6 +496,8 @@
 				DEVELOPMENT_TEAM = 79WFPQ5835;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = UsherMobile/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Usher Mobile";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -523,6 +525,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79WFPQ5835;
 				INFOPLIST_FILE = UsherMobile/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Usher Mobile";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

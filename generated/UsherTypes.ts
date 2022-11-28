@@ -5,6 +5,14 @@ export interface AESPayload {
     key?: string;
     iv?: string;
     payload?: string;
+    version?: number;
+}
+
+export interface GenericError {
+    status?: HttpStatus;
+    message?: string;
+    errors?: string[];
+    timestamp?: string;
 }
 
 export interface AuthResponse {
@@ -22,6 +30,7 @@ export interface ConfirmEnrolmentRequest {
 export interface ConfirmEnrolmentResponse {
     projectId?: string;
     publicKey?: string;
+    requiredPermissions?: ProjectPermission[];
 }
 
 export interface PermissionDTO {
@@ -36,7 +45,7 @@ export interface PreEnrolmentRequest {
 export interface PreEnrolmentResponse {
     projectName?: string;
     projectId?: string;
-    requiredPermissions?: ProjectPermissions[];
+    requiredPermissions?: ProjectPermission[];
     projectDescription?: string;
     projectTerms?: string;
     termsUpdated?: string;
@@ -44,92 +53,235 @@ export interface PreEnrolmentResponse {
     signature?: string;
 }
 
-export interface GenericError {
-    status?: HttpStatus;
-    message?: string;
-    errors?: string[];
-    timestamp?: string;
+export interface ProjectDTO {
+    id?: string;
+    name?: string;
+    created?: Date;
+    active?: boolean;
+    permissions?: PermissionDTO[];
+    description?: string;
+    publicKey?: string;
 }
 
-export enum ProjectPermissions {
-    ACCELEROMETER_FOREGROUND = "ACCELEROMETER_FOREGROUND",
-    ACCELEROMETER_BACKGROUND = "ACCELEROMETER_BACKGROUND",
-    GPS_FOREGROUND = "GPS_FOREGROUND",
-    GPS_BACKGROUND = "GPS_BACKGROUND",
-    DEVICE_ID = "DEVICE_ID",
-    UNIQUE_ID = "UNIQUE_ID",
-    USER_IP = "USER_IP",
-    CAMERA = "CAMERA",
-    AUDIO = "AUDIO",
+export interface ResponseWrapper {
+    type?: string;
+    value?: any;
 }
 
+export interface VersionDTO {
+    currentVersion?: number;
+    minVersion?: number;
+}
+
+export interface EncryptedEventDTO {
+    uuid?: string;
+    timestamp?: Date;
+    project?: string;
+    value?: AESPayload;
+}
+
+export interface LocationEventDTO extends UsherEventDTO {
+    batteryCharging?: boolean;
+    batteryLevel?: number;
+    latitude?: number;
+    longitude?: number;
+    speed?: number;
+    heading?: number;
+    altitude?: number;
+    activity?: string;
+    locationAccuracy?: number;
+    speedAccuracy?: number;
+    headingAccuracy?: number;
+    altitudeAccuracy?: number;
+    activityAccuracy?: number;
+    moving?: boolean;
+    mock?: boolean;
+    timestamp?: Date;
+}
+
+export interface UsherEventDTO {
+    id?: string;
+    schemaVersion?: number;
+    eventType?: EventType;
+    participantId?: string;
+    deviceId?: string;
+}
+
+export enum EventType {
+    LOCATION = "LOCATION",
+}
+
+/**
+ * Values:
+ * - `100 CONTINUE`
+ * - `101 SWITCHING_PROTOCOLS`
+ * - `102 PROCESSING`
+ * - `103 CHECKPOINT`
+ * - `200 OK`
+ * - `201 CREATED`
+ * - `202 ACCEPTED`
+ * - `203 NON_AUTHORITATIVE_INFORMATION`
+ * - `204 NO_CONTENT`
+ * - `205 RESET_CONTENT`
+ * - `206 PARTIAL_CONTENT`
+ * - `207 MULTI_STATUS`
+ * - `208 ALREADY_REPORTED`
+ * - `226 IM_USED`
+ * - `300 MULTIPLE_CHOICES`
+ * - `301 MOVED_PERMANENTLY`
+ * - `302 FOUND`
+ * - `302 MOVED_TEMPORARILY` - @deprecated
+ * - `303 SEE_OTHER`
+ * - `304 NOT_MODIFIED`
+ * - `305 USE_PROXY` - @deprecated
+ * - `307 TEMPORARY_REDIRECT`
+ * - `308 PERMANENT_REDIRECT`
+ * - `400 BAD_REQUEST`
+ * - `401 UNAUTHORIZED`
+ * - `402 PAYMENT_REQUIRED`
+ * - `403 FORBIDDEN`
+ * - `404 NOT_FOUND`
+ * - `405 METHOD_NOT_ALLOWED`
+ * - `406 NOT_ACCEPTABLE`
+ * - `407 PROXY_AUTHENTICATION_REQUIRED`
+ * - `408 REQUEST_TIMEOUT`
+ * - `409 CONFLICT`
+ * - `410 GONE`
+ * - `411 LENGTH_REQUIRED`
+ * - `412 PRECONDITION_FAILED`
+ * - `413 PAYLOAD_TOO_LARGE`
+ * - `413 REQUEST_ENTITY_TOO_LARGE` - @deprecated
+ * - `414 URI_TOO_LONG`
+ * - `414 REQUEST_URI_TOO_LONG` - @deprecated
+ * - `415 UNSUPPORTED_MEDIA_TYPE`
+ * - `416 REQUESTED_RANGE_NOT_SATISFIABLE`
+ * - `417 EXPECTATION_FAILED`
+ * - `418 I_AM_A_TEAPOT`
+ * - `419 INSUFFICIENT_SPACE_ON_RESOURCE` - @deprecated
+ * - `420 METHOD_FAILURE` - @deprecated
+ * - `421 DESTINATION_LOCKED` - @deprecated
+ * - `422 UNPROCESSABLE_ENTITY`
+ * - `423 LOCKED`
+ * - `424 FAILED_DEPENDENCY`
+ * - `425 TOO_EARLY`
+ * - `426 UPGRADE_REQUIRED`
+ * - `428 PRECONDITION_REQUIRED`
+ * - `429 TOO_MANY_REQUESTS`
+ * - `431 REQUEST_HEADER_FIELDS_TOO_LARGE`
+ * - `451 UNAVAILABLE_FOR_LEGAL_REASONS`
+ * - `500 INTERNAL_SERVER_ERROR`
+ * - `501 NOT_IMPLEMENTED`
+ * - `502 BAD_GATEWAY`
+ * - `503 SERVICE_UNAVAILABLE`
+ * - `504 GATEWAY_TIMEOUT`
+ * - `505 HTTP_VERSION_NOT_SUPPORTED`
+ * - `506 VARIANT_ALSO_NEGOTIATES`
+ * - `507 INSUFFICIENT_STORAGE`
+ * - `508 LOOP_DETECTED`
+ * - `509 BANDWIDTH_LIMIT_EXCEEDED`
+ * - `510 NOT_EXTENDED`
+ * - `511 NETWORK_AUTHENTICATION_REQUIRED`
+ */
 export enum HttpStatus {
-    CONTINUE = "CONTINUE",
-    SWITCHING_PROTOCOLS = "SWITCHING_PROTOCOLS",
-    PROCESSING = "PROCESSING",
-    CHECKPOINT = "CHECKPOINT",
-    OK = "OK",
-    CREATED = "CREATED",
-    ACCEPTED = "ACCEPTED",
-    NON_AUTHORITATIVE_INFORMATION = "NON_AUTHORITATIVE_INFORMATION",
-    NO_CONTENT = "NO_CONTENT",
-    RESET_CONTENT = "RESET_CONTENT",
-    PARTIAL_CONTENT = "PARTIAL_CONTENT",
-    MULTI_STATUS = "MULTI_STATUS",
-    ALREADY_REPORTED = "ALREADY_REPORTED",
-    IM_USED = "IM_USED",
-    MULTIPLE_CHOICES = "MULTIPLE_CHOICES",
-    MOVED_PERMANENTLY = "MOVED_PERMANENTLY",
-    FOUND = "FOUND",
-    MOVED_TEMPORARILY = "MOVED_TEMPORARILY",
-    SEE_OTHER = "SEE_OTHER",
-    NOT_MODIFIED = "NOT_MODIFIED",
-    USE_PROXY = "USE_PROXY",
-    TEMPORARY_REDIRECT = "TEMPORARY_REDIRECT",
-    PERMANENT_REDIRECT = "PERMANENT_REDIRECT",
-    BAD_REQUEST = "BAD_REQUEST",
-    UNAUTHORIZED = "UNAUTHORIZED",
-    PAYMENT_REQUIRED = "PAYMENT_REQUIRED",
-    FORBIDDEN = "FORBIDDEN",
-    NOT_FOUND = "NOT_FOUND",
-    METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED",
-    NOT_ACCEPTABLE = "NOT_ACCEPTABLE",
-    PROXY_AUTHENTICATION_REQUIRED = "PROXY_AUTHENTICATION_REQUIRED",
-    REQUEST_TIMEOUT = "REQUEST_TIMEOUT",
-    CONFLICT = "CONFLICT",
-    GONE = "GONE",
-    LENGTH_REQUIRED = "LENGTH_REQUIRED",
-    PRECONDITION_FAILED = "PRECONDITION_FAILED",
-    PAYLOAD_TOO_LARGE = "PAYLOAD_TOO_LARGE",
-    REQUEST_ENTITY_TOO_LARGE = "REQUEST_ENTITY_TOO_LARGE",
-    URI_TOO_LONG = "URI_TOO_LONG",
-    REQUEST_URI_TOO_LONG = "REQUEST_URI_TOO_LONG",
-    UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE",
-    REQUESTED_RANGE_NOT_SATISFIABLE = "REQUESTED_RANGE_NOT_SATISFIABLE",
-    EXPECTATION_FAILED = "EXPECTATION_FAILED",
-    I_AM_A_TEAPOT = "I_AM_A_TEAPOT",
-    INSUFFICIENT_SPACE_ON_RESOURCE = "INSUFFICIENT_SPACE_ON_RESOURCE",
-    METHOD_FAILURE = "METHOD_FAILURE",
-    DESTINATION_LOCKED = "DESTINATION_LOCKED",
-    UNPROCESSABLE_ENTITY = "UNPROCESSABLE_ENTITY",
-    LOCKED = "LOCKED",
-    FAILED_DEPENDENCY = "FAILED_DEPENDENCY",
-    TOO_EARLY = "TOO_EARLY",
-    UPGRADE_REQUIRED = "UPGRADE_REQUIRED",
-    PRECONDITION_REQUIRED = "PRECONDITION_REQUIRED",
-    TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
-    REQUEST_HEADER_FIELDS_TOO_LARGE = "REQUEST_HEADER_FIELDS_TOO_LARGE",
-    UNAVAILABLE_FOR_LEGAL_REASONS = "UNAVAILABLE_FOR_LEGAL_REASONS",
-    INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
-    NOT_IMPLEMENTED = "NOT_IMPLEMENTED",
-    BAD_GATEWAY = "BAD_GATEWAY",
-    SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
-    GATEWAY_TIMEOUT = "GATEWAY_TIMEOUT",
-    HTTP_VERSION_NOT_SUPPORTED = "HTTP_VERSION_NOT_SUPPORTED",
-    VARIANT_ALSO_NEGOTIATES = "VARIANT_ALSO_NEGOTIATES",
-    INSUFFICIENT_STORAGE = "INSUFFICIENT_STORAGE",
-    LOOP_DETECTED = "LOOP_DETECTED",
-    BANDWIDTH_LIMIT_EXCEEDED = "BANDWIDTH_LIMIT_EXCEEDED",
-    NOT_EXTENDED = "NOT_EXTENDED",
-    NETWORK_AUTHENTICATION_REQUIRED = "NETWORK_AUTHENTICATION_REQUIRED",
+    CONTINUE = "100 CONTINUE",
+    SWITCHING_PROTOCOLS = "101 SWITCHING_PROTOCOLS",
+    PROCESSING = "102 PROCESSING",
+    CHECKPOINT = "103 CHECKPOINT",
+    OK = "200 OK",
+    CREATED = "201 CREATED",
+    ACCEPTED = "202 ACCEPTED",
+    NON_AUTHORITATIVE_INFORMATION = "203 NON_AUTHORITATIVE_INFORMATION",
+    NO_CONTENT = "204 NO_CONTENT",
+    RESET_CONTENT = "205 RESET_CONTENT",
+    PARTIAL_CONTENT = "206 PARTIAL_CONTENT",
+    MULTI_STATUS = "207 MULTI_STATUS",
+    ALREADY_REPORTED = "208 ALREADY_REPORTED",
+    IM_USED = "226 IM_USED",
+    MULTIPLE_CHOICES = "300 MULTIPLE_CHOICES",
+    MOVED_PERMANENTLY = "301 MOVED_PERMANENTLY",
+    FOUND = "302 FOUND",
+    /**
+     * @deprecated
+     */
+    MOVED_TEMPORARILY = "302 MOVED_TEMPORARILY",
+    SEE_OTHER = "303 SEE_OTHER",
+    NOT_MODIFIED = "304 NOT_MODIFIED",
+    /**
+     * @deprecated
+     */
+    USE_PROXY = "305 USE_PROXY",
+    TEMPORARY_REDIRECT = "307 TEMPORARY_REDIRECT",
+    PERMANENT_REDIRECT = "308 PERMANENT_REDIRECT",
+    BAD_REQUEST = "400 BAD_REQUEST",
+    UNAUTHORIZED = "401 UNAUTHORIZED",
+    PAYMENT_REQUIRED = "402 PAYMENT_REQUIRED",
+    FORBIDDEN = "403 FORBIDDEN",
+    NOT_FOUND = "404 NOT_FOUND",
+    METHOD_NOT_ALLOWED = "405 METHOD_NOT_ALLOWED",
+    NOT_ACCEPTABLE = "406 NOT_ACCEPTABLE",
+    PROXY_AUTHENTICATION_REQUIRED = "407 PROXY_AUTHENTICATION_REQUIRED",
+    REQUEST_TIMEOUT = "408 REQUEST_TIMEOUT",
+    CONFLICT = "409 CONFLICT",
+    GONE = "410 GONE",
+    LENGTH_REQUIRED = "411 LENGTH_REQUIRED",
+    PRECONDITION_FAILED = "412 PRECONDITION_FAILED",
+    PAYLOAD_TOO_LARGE = "413 PAYLOAD_TOO_LARGE",
+    /**
+     * @deprecated
+     */
+    REQUEST_ENTITY_TOO_LARGE = "413 REQUEST_ENTITY_TOO_LARGE",
+    URI_TOO_LONG = "414 URI_TOO_LONG",
+    /**
+     * @deprecated
+     */
+    REQUEST_URI_TOO_LONG = "414 REQUEST_URI_TOO_LONG",
+    UNSUPPORTED_MEDIA_TYPE = "415 UNSUPPORTED_MEDIA_TYPE",
+    REQUESTED_RANGE_NOT_SATISFIABLE = "416 REQUESTED_RANGE_NOT_SATISFIABLE",
+    EXPECTATION_FAILED = "417 EXPECTATION_FAILED",
+    I_AM_A_TEAPOT = "418 I_AM_A_TEAPOT",
+    /**
+     * @deprecated
+     */
+    INSUFFICIENT_SPACE_ON_RESOURCE = "419 INSUFFICIENT_SPACE_ON_RESOURCE",
+    /**
+     * @deprecated
+     */
+    METHOD_FAILURE = "420 METHOD_FAILURE",
+    /**
+     * @deprecated
+     */
+    DESTINATION_LOCKED = "421 DESTINATION_LOCKED",
+    UNPROCESSABLE_ENTITY = "422 UNPROCESSABLE_ENTITY",
+    LOCKED = "423 LOCKED",
+    FAILED_DEPENDENCY = "424 FAILED_DEPENDENCY",
+    TOO_EARLY = "425 TOO_EARLY",
+    UPGRADE_REQUIRED = "426 UPGRADE_REQUIRED",
+    PRECONDITION_REQUIRED = "428 PRECONDITION_REQUIRED",
+    TOO_MANY_REQUESTS = "429 TOO_MANY_REQUESTS",
+    REQUEST_HEADER_FIELDS_TOO_LARGE = "431 REQUEST_HEADER_FIELDS_TOO_LARGE",
+    UNAVAILABLE_FOR_LEGAL_REASONS = "451 UNAVAILABLE_FOR_LEGAL_REASONS",
+    INTERNAL_SERVER_ERROR = "500 INTERNAL_SERVER_ERROR",
+    NOT_IMPLEMENTED = "501 NOT_IMPLEMENTED",
+    BAD_GATEWAY = "502 BAD_GATEWAY",
+    SERVICE_UNAVAILABLE = "503 SERVICE_UNAVAILABLE",
+    GATEWAY_TIMEOUT = "504 GATEWAY_TIMEOUT",
+    HTTP_VERSION_NOT_SUPPORTED = "505 HTTP_VERSION_NOT_SUPPORTED",
+    VARIANT_ALSO_NEGOTIATES = "506 VARIANT_ALSO_NEGOTIATES",
+    INSUFFICIENT_STORAGE = "507 INSUFFICIENT_STORAGE",
+    LOOP_DETECTED = "508 LOOP_DETECTED",
+    BANDWIDTH_LIMIT_EXCEEDED = "509 BANDWIDTH_LIMIT_EXCEEDED",
+    NOT_EXTENDED = "510 NOT_EXTENDED",
+    NETWORK_AUTHENTICATION_REQUIRED = "511 NETWORK_AUTHENTICATION_REQUIRED",
+}
+
+export enum ProjectPermission {
+    ACCELEROMETER_FOREGROUND = "Project requests access to device accelerometer while app is in foreground",
+    ACCELEROMETER_BACKGROUND = "Project requests access to device accelerometer while app is in background",
+    GPS_FOREGROUND = "Project requests access to GPS (ie location data) while app is in foreground",
+    GPS_BACKGROUND = "Project requests access to GPS (ie location data) while app is in background",
+    DEVICE_ID = "Project requests that a hash of the device ID be submitted by participant",
+    PARTICIPANT_ID = "Enroled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
+    USER_IP = "Project requests permission to log device IP when submitting participant data",
+    CAMERA = "Project requests permission to access camera",
+    AUDIO = "Project requests permission to access device audio",
 }

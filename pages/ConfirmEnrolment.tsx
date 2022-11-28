@@ -1,25 +1,28 @@
 import React, {useEffect, useState} from 'react';
-import {List, Title, Text, Paragraph, Colors, Checkbox, Button} from 'react-native-paper';
-import {StyleSheet, View} from 'react-native';
+import {Button, Checkbox, Colors, List, Paragraph, Text, Title} from 'react-native-paper';
+import {StyleSheet, useWindowDimensions, View} from 'react-native';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {
     AESPayload,
     ConfirmEnrolmentRequest,
+    ConfirmEnrolmentResponse,
     PermissionDTO,
     PreEnrolmentResponse,
-    ProjectPermissions,
+    ProjectPermission,
+    ResponseWrapper,
 } from '../generated/UsherTypes';
 import {RouteProp} from '@react-navigation/native';
 import {BASE_API_URL} from '@env';
 import {LoadingSpinner} from '../components/LoadingSpinner';
-import {useWindowDimensions} from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {getClientKeys} from '../components/EnrolmentManager';
+import {getClientKeys, Project} from '../components/EnrolmentManager';
 import {decryptPayload, getAESKey} from '../utils/AESPayloadManager';
 // @ts-ignore - local library (for now)
 import {KeyPair} from 'react-native-fast-rsa';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_DB_PROJ_BASE} from '../utils/Const';
 
 const styles = StyleSheet.create({
     header: {
@@ -63,7 +66,7 @@ function RenderAsHtml(props: { width: number, contents: string | undefined, titl
     );
 }
 
-function RenderPermissions(props: { allPermissions: PermissionDTO[] | undefined, appPermissions: ProjectPermissions[] | undefined }) {
+function RenderPermissions(props: { allPermissions: PermissionDTO[] | undefined, appPermissions: ProjectPermission[] | undefined }) {
     if (!props.allPermissions || !props.appPermissions) {
         return <></>;
     }
@@ -91,11 +94,11 @@ function RenderPermissions(props: { allPermissions: PermissionDTO[] | undefined,
     );
 }
 
-export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> }) => {
+export const ConfirmEnrolment = (
+    {navigation, route}: { navigation: NativeStackNavigationProp<any>, route: RouteProp<any> },
+) => {
 
     const preEnrolment = route.params?.project as PreEnrolmentResponse;
-
-    Icon.loadFont();
 
     const [loading, setLoading] = useState(true);
     const [permissions, setPermissions] = useState([] as PermissionDTO[]);
@@ -116,7 +119,18 @@ export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackN
             });
     }, [preEnrolment]);
 
+    const showError = (line1: string, line2: string | undefined) => {
+        Toast.show({
+            type: 'error',
+            text1: line1,
+            text2: line2,
+            position: 'top',
+        });
+    };
+
     function completeEnrolment() {
+
+        // todo cleanup
         const enrolmentRequest = {
             projectId: preEnrolment.projectId,
             publicKey: keys.publicKey,
@@ -124,40 +138,85 @@ export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackN
             signature: preEnrolment.signature,
         } as ConfirmEnrolmentRequest;
 
-        console.debug("Sending enrolment confirmation", enrolmentRequest);
+        console.debug('Sending enrolment confirmation', enrolmentRequest);
         return fetch(BASE_API_URL + '/enrol/confirm', {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "content-type": "application/json",
+                'content-type': 'application/json',
             },
             body: JSON.stringify(enrolmentRequest),
         })
-        .then(response => response.json() as AESPayload)
-        .then((response: AESPayload) => {
-            setConfirmEnrolmentResponse(response);
-        })
-        .catch((err) => {
-            console.log("Error confirming enrolment:", err);
-        });
-        // navigation.navigate("CompleteEnrolment", {});
+            .then(response => {
+                if (!response.ok) {
+                    showError('Unable to complete enrolment', 'please restart app and try again');
+                } else {
+                    return response.json();
+                }
+            })
+            .then((response) => {
+                console.debug('Got enrolment response', response);
+                setConfirmEnrolmentResponse(response as AESPayload);
+            })
+            .catch((err) => {
+                console.error('Error confirming enrolment:', err);
+            });
+    }
+
+    function addEnrolment(enrolmentResponse: ConfirmEnrolmentResponse) {
+        console.debug('Processing enrolment:', enrolmentResponse);
+        AsyncStorage.mergeItem(`${ASYNC_DB_PROJ_BASE}_${enrolmentResponse.projectId}`, JSON.stringify(
+            {
+                projectId: enrolmentResponse.projectId,
+                projectPublicKey: enrolmentResponse.publicKey,
+                projectPermissions: enrolmentResponse.requiredPermissions,
+                participantId: preEnrolment.participantId,
+            } as Project,
+        ))
+            .then(() => {
+                return AsyncStorage.getItem(`${ASYNC_DB_PROJ_BASE}_${enrolmentResponse.projectId}`);
+            })
+            .then((res: string | null) => {
+                if (res === null) {
+                    console.error(`Error retrieving project ${enrolmentResponse.projectId}`);
+                }
+                return JSON.parse(res || '') as Project;
+            })
+            .then((proj: Project) => {
+                Toast.show({
+                    type: 'info',
+                    text1: 'Completed enrolment',
+                    text2: `Project ID: ${proj.projectId}`,
+                });
+                navigation.navigate('Home');
+            });
     }
 
     useEffect(() => {
         if (!keys || !keys.privateKey || !keys.publicKey || !confirmEnrolmentResponse || !confirmEnrolmentResponse.key) {
             return;
         }
+        console.debug('Attempting to handle enrolment response');
         getAESKey(confirmEnrolmentResponse, keys.privateKey)
             .then((key: string) => {
                 if (key === undefined) {
-                    throw new Error("Key not defined");
+                    throw new Error('Key not defined');
                 }
-                decryptPayload(confirmEnrolmentResponse, key);
+                return decryptPayload(confirmEnrolmentResponse, key);
+            })
+            .then((wrapper: ResponseWrapper) => {
+                if (!wrapper.type || !wrapper.type.endsWith('ConfirmEnrolmentResponse')) {
+                    throw new Error('Unexpected response');
+                }
+                return wrapper.value as ConfirmEnrolmentResponse;
+            })
+            .then((enrolmentResponse: ConfirmEnrolmentResponse) => {
+                addEnrolment(enrolmentResponse);
             });
     }, [keys, confirmEnrolmentResponse]);
 
     useEffect(() => {
         // todo remove me
-        console.info("debug: checking boxes");
+        console.info('debug: checking boxes');
         setCheckedTerms(true);
         setCheckedData(true);
     }, []);
@@ -216,8 +275,8 @@ export const ConfirmEnrolment = ({navigation, route}: { navigation: NativeStackN
                         style={styles.interactiveArea}
                         onPress={() => completeEnrolment()}
                         disabled={(!checkedTerms || !checkedData || generatingKeypair || !keys)}>
-                            Confirm enrolment
-                        </Button>
+                        Confirm enrolment
+                    </Button>
                 </View>
                 <View style={styles.forceMarginBottom}/>
             </View>

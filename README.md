@@ -22,3 +22,14 @@ npm run ios
 
 Assuming your backend service is up and running, you should be able to
 set up test projects and enrol/unenrol in these projects via the app.
+
+### Permissions
+
+The following permissions are required on devices
+
+| **iOS permission name**                      | **Description**                                                                                                                     |
+|----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| NSLocationWhenInUseUsageDescription          | The platform requires access to your location data and, with your permission, will forward this data to specific research projects. |
+| NSHealthShareUsageDescription                | Access to health sensors is required in order to identify motion and query data from wearables, if available.                       |
+| NSLocationAlwaysAndWhenInUseUsageDescription | Background access to the GPS is required so that location data can be collected even if the app is not in the foreground.           |
+| NSMotionUsageDescription                     | Access to motion sensors is required in order to determine the type of movements (running, walking, etc) you are undertaking.       |

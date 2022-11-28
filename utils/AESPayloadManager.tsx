@@ -1,5 +1,5 @@
-import {AESPayload} from '../generated/UsherTypes';
-import Aes from "react-native-aes-crypto";
+import {AESPayload, ResponseWrapper} from '../generated/UsherTypes';
+import Aes from 'react-native-aes-crypto';
 // @ts-ignore - local library (for now)
 import RSA, {Hash} from 'react-native-fast-rsa';
 import {Buffer} from 'buffer';
@@ -11,12 +11,15 @@ import {Buffer} from 'buffer';
  */
 export const getAESKey = function (input: AESPayload, privateKey: string) {
     if (input === undefined || input.key === undefined || privateKey === undefined) {
-        throw new Error("Input and private key must both be defined");
+        throw new Error('Input and private key must both be defined');
     }
     // gets AES key from input
     return RSA.decryptOAEP(input.key, '', Hash.SHA256, privateKey)
         .then((res: string) => {
-            console.debug(`Got response of length ${res.length}`);
+            console.debug(`Got key length of ${res.length}`);
+            if (res.length !== 16 && res.length !== 32) {
+                throw new Error('Unable to retrieve correct key; encoding issue?');
+            }
             return Buffer.from(res || '').toString('hex');
         });
 };
@@ -27,7 +30,7 @@ export const decryptPayload = function (input: AESPayload, key: string) {
         || input.payload === undefined
         || input.iv === undefined
         || key === undefined) {
-        throw new Error("Input and AES key must both be defined");
+        throw new Error('Input and AES key must both be defined');
     }
 
     // payload = base64 (already encoded as such)
@@ -35,16 +38,17 @@ export const decryptPayload = function (input: AESPayload, key: string) {
     // iv = hex
     const iv = Buffer.from(input.iv, 'base64').toString('hex');
 
-    Aes.decrypt(
+    return Aes.decrypt(
         input.payload,
         key,
         iv,
-        'aes-256-cbc'
+        'aes-256-cbc',
     )
         .then((res: any) => {
             console.debug(`decrypted AES response - ${res}`);
+            return JSON.parse(res) as ResponseWrapper;
         })
         .catch((err) => {
-            console.error("Error in AES payload decryption:", err);
+            console.error('Error in AES payload decryption:', err);
         });
 };

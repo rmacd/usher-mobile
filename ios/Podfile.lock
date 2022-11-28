@@ -1,6 +1,9 @@
 PODS:
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
+  - CocoaLumberjack (3.7.4):
+    - CocoaLumberjack/Core (= 3.7.4)
+  - CocoaLumberjack/Core (3.7.4)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.70.1)
   - FBReactNativeSpec (0.70.1):
@@ -306,20 +309,24 @@ PODS:
     - React-Core
   - react-native-background-actions (2.6.7):
     - React-Core
-  - react-native-encrypted-storage (4.0.2):
+  - react-native-encrypted-storage (4.0.3):
     - React-Core
   - react-native-fast-rsa (2.3.6):
     - React-Core
-  - react-native-netinfo (9.3.1):
+  - react-native-netinfo (9.3.6):
     - React-Core
   - react-native-render-html (6.3.4):
     - React-Core
-  - react-native-safe-area-context (4.3.3):
+  - react-native-restart (0.0.24):
+    - React-Core
+  - react-native-safe-area-context (4.4.1):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-sqlite-storage (6.0.1):
+    - React-Core
   - react-native-version-number (0.3.6):
     - React
   - React-perflogger (0.70.1)
@@ -388,9 +395,16 @@ PODS:
     - React-jsi (= 0.70.1)
     - React-logger (= 0.70.1)
     - React-perflogger (= 0.70.1)
-  - RNCAsyncStorage (1.17.10):
+  - RNBackgroundFetch (4.1.5):
     - React-Core
-  - RNScreens (3.17.0):
+  - RNBackgroundGeolocation (4.9.3):
+    - CocoaLumberjack (~> 3.7.2)
+    - React-Core
+  - RNCAsyncStorage (1.17.11):
+    - React-Core
+  - RNDeviceInfo (10.3.0):
+    - React-Core
+  - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
   - RNVectorIcons (9.2.0):
@@ -453,7 +467,9 @@ DEPENDENCIES:
   - react-native-fast-rsa (from `../node_modules/react-native-fast-rsa`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-render-html (from `../node_modules/react-native-render-html`)
+  - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -467,7 +483,10 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
+  - RNBackgroundGeolocation (from `../node_modules/react-native-background-geolocation`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -475,6 +494,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
+    - CocoaLumberjack
     - Flipper
     - Flipper-Boost-iOSX
     - Flipper-DoubleConversion
@@ -545,8 +565,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-render-html:
     :path: "../node_modules/react-native-render-html"
+  react-native-restart:
+    :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-sqlite-storage:
+    :path: "../node_modules/react-native-sqlite-storage"
   react-native-version-number:
     :path: "../node_modules/react-native-version-number"
   React-perflogger:
@@ -573,8 +597,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNBackgroundFetch:
+    :path: "../node_modules/react-native-background-fetch"
+  RNBackgroundGeolocation:
+    :path: "../node_modules/react-native-background-geolocation"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNVectorIcons:
@@ -585,6 +615,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: d3cdc05875c89782840d2f38e1d6174fab24e4d2
   FBReactNativeSpec: 0612c8f2dbd774414bb778247c6ec6cb05aa4c50
@@ -619,11 +650,13 @@ SPEC CHECKSUMS:
   React-logger: 7bd569e3857d74ed412ce0a5c51f421ff7d4ca7f
   react-native-aes: c75c46aa744bef7c2415fdf7f5b2dcb75ca4364d
   react-native-background-actions: 2c251c986f23347f9c1722f05fd296938f60edb1
-  react-native-encrypted-storage: e78d848ce0fb663c2ce306e37921d026809322e6
+  react-native-encrypted-storage: db300a3f2f0aba1e818417c1c0a6be549038deb7
   react-native-fast-rsa: dd7b18c544c5172199073abec4794a5aea3f9e00
-  react-native-netinfo: c8d02a805706024f8de3a339a028f7e64f63b4b6
+  react-native-netinfo: f80db8cac2151405633324cb645c60af098ee461
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
-  react-native-safe-area-context: b456e1c40ec86f5593d58b275bd0e9603169daca
+  react-native-restart: 45c8dca02491980f2958595333cbccd6877cb57e
+  react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
+  react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
   react-native-version-number: b415bbec6a13f2df62bf978e85bc0d699462f37f
   React-perflogger: 48c6b363e867d64b682e84f80ca45636bd65e19c
   React-RCTActionSheet: 33c74fe5c754835e3715c300618da9aa2f7203fa
@@ -637,8 +670,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: e9164827303fb6a5cf79e4c4af4846a09956b11f
   React-runtimeexecutor: a11d0c2e14140baf1e449264ca9168ae9ae6bbd0
   ReactCommon: 7f86326b92009925c6dcf93f8e825060171c379f
-  RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
-  RNScreens: 0df01424e9e0ed7827200d6ed1087ddd06c493f9
+  RNBackgroundFetch: 0d378f04faa1244f6eb3787f51f7d99520c1fe5e
+  RNBackgroundGeolocation: 6257657303021fb42a023af00426579bf996f7a4
+  RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
+  RNDeviceInfo: 4701f0bf2a06b34654745053db0ce4cb0c53ada7
+  RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 6c8252e38d65aa387daee699eacf027e055e0b31
