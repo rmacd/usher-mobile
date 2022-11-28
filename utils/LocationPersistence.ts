@@ -1,7 +1,7 @@
 import {Location} from 'react-native-background-geolocation';
 import {Project} from '../components/EnrolmentManager';
 import Aes from 'react-native-aes-crypto';
-import {AESPayload, LocationEventDTO} from '../generated/UsherTypes';
+import {AESPayload, EventType, LocationEventDTO, PermissionDTO, ProjectPermission} from '../generated/UsherTypes';
 import {getDBConnection, triggerPushLocations, writeEvent} from './DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import {DebugFlags} from '../components/AppContext';
@@ -62,11 +62,16 @@ function encryptAndWriteLocation(location: LocationEventDTO | string, project: P
     });
 }
 
-export const persistLocation = (location: Location | string, project: Project, debugFlags: DebugFlags) => {
+export const persistLocation = (location: Location | string, project: Project, debugFlags: DebugFlags, participantId: string | undefined, deviceId: string | undefined) => {
     const loc = location.valueOf() as Location;
     const event = {
+        // base type
         id: loc.uuid,
-        participantId: '--NULL--',
+        schemaVersion: 1,
+        eventType: EventType.LOCATION,
+        participantId: participantId,
+        deviceId: deviceId,
+        // location-specific fields
         latitude: loc.coords?.latitude,
         longitude: loc.coords?.longitude,
         altitude: loc.coords?.altitude,

@@ -12,7 +12,6 @@ import {UsherMenu} from './components/UsherMenu';
 import ContextWrapper from './components/ContextWrapper';
 import {BASE_API_URL} from '@env';
 import {ConfirmResetApp} from './components/ConfirmResetApp';
-import {InspectData} from './components/InspectData';
 import {createTables, getDBConnection} from './utils/DAO';
 import {SQLiteDatabase} from 'react-native-sqlite-storage';
 
@@ -81,7 +80,6 @@ const App = () => {
 
                     {/*any modals*/}
                     <ModalSettings/>
-                    <InspectData/>
                     <ConfirmResetApp/>
                 </ContextWrapper>
             </Provider>

@@ -129,6 +129,8 @@ export const ConfirmEnrolment = (
     };
 
     function completeEnrolment() {
+
+        // todo cleanup
         const enrolmentRequest = {
             projectId: preEnrolment.projectId,
             publicKey: keys.publicKey,
@@ -167,6 +169,7 @@ export const ConfirmEnrolment = (
                 projectId: enrolmentResponse.projectId,
                 projectPublicKey: enrolmentResponse.publicKey,
                 projectPermissions: enrolmentResponse.requiredPermissions,
+                participantId: preEnrolment.participantId,
             } as Project,
         ))
             .then(() => {

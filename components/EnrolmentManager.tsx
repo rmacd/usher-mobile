@@ -10,7 +10,8 @@ export type Project = {
     clientPrivateKey: string,
     clientPublicKey: string,
     projectPublicKey: string,
-    projectPermissions: ProjectPermission[]
+    projectPermissions: ProjectPermission[],
+    participantId: string,
 }
 
 export const getProject = (projectId: string) => {

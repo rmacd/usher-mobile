@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import BackgroundGeolocation from 'react-native-background-geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_DB_PROJ_BASE} from '../utils/Const';
@@ -9,13 +9,27 @@ import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux/UsherStore';
 import {addProject} from '../redux/reducers/ProjectsReducer';
 import {refusePermissions, requestPermissions} from '../redux/reducers/PermissionsReducer';
-import {ProjectPermission} from '../generated/UsherTypes';
+import {ProjectPermission, VersionDTO} from '../generated/UsherTypes';
+import {BASE_API_URL} from '@env';
+import {request} from '../utils/Request';
+import VersionNumber from 'react-native-version-number';
+import Toast from 'react-native-toast-message';
+import DeviceInfo from 'react-native-device-info';
 
 type ContextProps = React.PropsWithChildren<{}>;
 
 export default function ContextWrapper({children}: ContextProps) {
 
-    const {debugFlags} = useContext(AppContext);
+    const {network, debugFlags} = useContext(AppContext);
+
+    // note that device ID must only be accessed once user consent has been gained
+    const [uniqueId, setUniqueId] = useState('');
+    useEffect(() => {
+        DeviceInfo.getUniqueId()
+            .then((res) => {
+                setUniqueId(res);
+            });
+    }, []);
 
     const dispatch = useDispatch();
     const projects = useSelector((state: RootState) => {
@@ -24,6 +38,24 @@ export default function ContextWrapper({children}: ContextProps) {
     const permissions = useSelector((state: RootState) => {
         return state.permissions;
     });
+
+    const [completedVersionCheck, setCompletedVersionCheck] = useState(false);
+    useEffect(() => {
+        if (!network || completedVersionCheck) {return;}
+        const buildVersion = VersionNumber.buildVersion;
+        request<VersionDTO>(`${BASE_API_URL}/version`, {})
+            .then((version) => {
+                if (!version) {return;}
+                if (version.minVersion && version.minVersion > parseInt(buildVersion, 10)) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'App out of date',
+                        text2: 'App will not work properly until it is updated',
+                    });
+                }
+                setCompletedVersionCheck(true);
+            });
+    }, [completedVersionCheck, network]);
 
     // load projects from asyncstorage into redux state
     useEffect(() => {
@@ -43,22 +75,6 @@ export default function ContextWrapper({children}: ContextProps) {
         });
     }, [dispatch]);
 
-    // debug - print db
-    // useEffect(() => {
-    //     if (!debugFlags?.debugDB) {
-    //         return;
-    //     }
-    //     AsyncStorage.getAllKeys()
-    //         .then((input: readonly string[]) => {
-    //             for (const key of input) {
-    //                 AsyncStorage.getItem(key)
-    //                     .then((_val) => {
-    //                         console.debug(`\n>> key: ${key}: ${JSON.stringify(JSON.parse(_val || ''), null, ' ')}`);
-    //                     });
-    //             }
-    //         });
-    // }, [debugFlags?.debugDB]);
-
     useEffect(() => {
         console.debug("Got projects from redux:", projects);
     }, [projects]);
@@ -70,6 +86,21 @@ export default function ContextWrapper({children}: ContextProps) {
             }
         });
     }, [debugFlags?.debugPersistence]);
+
+    // if project requests device id and permission is granted by the user, pass this to the project
+    function getDeviceId(proj: Project, granted: ProjectPermission[]) {
+        if (proj.projectPermissions.includes('DEVICE_ID' as ProjectPermission) && granted.includes('DEVICE_ID' as ProjectPermission)) {
+            return uniqueId;
+        }
+        return undefined;
+    }
+
+    // as with device ID
+    function getParticipantId(proj: Project, granted: ProjectPermission[]) {
+        if (proj.projectPermissions.includes('PARTICIPANT_ID' as ProjectPermission) && granted.includes('PARTICIPANT_ID' as ProjectPermission)) {
+            return proj.participantId;
+        }
+    }
 
     useEffect(() => {
         console.debug('Updated GRANTED permissions:', permissions.granted, "projects:", projects);
@@ -92,7 +123,9 @@ export default function ContextWrapper({children}: ContextProps) {
                     console.debug('Got location', input);
                 }
                 projects.forEach((proj) => {
-                    persistLocation(input, proj, debugFlags);
+                    const deviceId = getDeviceId(proj, permissions.granted);
+                    const participantId = getParticipantId(proj, permissions.granted);
+                    persistLocation(input, proj, debugFlags, participantId, deviceId);
                 });
             });
 
@@ -135,63 +168,6 @@ export default function ContextWrapper({children}: ContextProps) {
             BackgroundGeolocation.stop();
         }
     }, [debugFlags?.debugGeo, permissions.granted]);
-
-    useEffect(() => {
-        if (projects.length > 10) {
-            BackgroundGeolocation.addListener('location', (input: any) => {
-                if (debugFlags?.debugGeo) {
-                    console.debug('Got location', input);
-                }
-                AsyncStorage.getAllKeys((_error, result) => {
-                    return result?.filter(function (r) {
-                        r.startsWith(ASYNC_DB_PROJ_BASE);
-                    }).keys;
-                }).then((res: readonly string[]) => {
-                    if (debugFlags?.debugPersistence || debugFlags?.debugGeo) {
-                        console.debug(`Calling location listener for ${res.length} projects: ${res}`);
-                    }
-                    for (const projKey of res) {
-                        AsyncStorage.getItem(projKey, (_itemErr, itemVal) => {
-                            const proj = JSON.parse(itemVal || '') as unknown as Project;
-                            if (!proj || proj.projectId === undefined) {
-                                console.info(`Unable to find project or project ID for key ${projKey}`);
-                                return;
-                            }
-                            persistLocation(input, proj, debugFlags);
-                        });
-                    }
-                });
-            });
-            BackgroundGeolocation.ready(
-                {
-                    maxRecordsToPersist: 0,
-                    autoSync: false,
-                    debug: false,
-                    desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_NAVIGATION,
-                    distanceFilter: 10,
-                    stationaryRadius: 25,
-                    logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
-                    startOnBoot: true,
-                    stopOnTerminate: false,
-                    preventSuspend: true,
-                    notification: {
-                        title: 'Updating location',
-                    },
-                },
-                (state) => {
-                    // ⚠️ Do not execute any API method which will require accessing location-services
-                    // until #ready gets resolved (eg: #getCurrentPosition, #watchPosition, #start).
-                    if (!state.enabled) {
-                        BackgroundGeolocation.start();
-                    }
-                });
-        }
-        else {
-            BackgroundGeolocation.stop(() => {
-                console.info("Stopped BackgroundGeolocation service");
-            });
-        }
-    }, [debugFlags, debugFlags?.debugGeo, debugFlags?.debugPersistence, projects]);
 
     const reRegisterListeners = () => {
         console.debug("Re-registering all applicable listeners");
