@@ -4,8 +4,9 @@ import {Button, Card, Paragraph, Text, Title} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../redux/UsherStore';
+import {View} from 'react-native';
 
-function EnrolledProject(props: { project: Project, navigation: NativeStackNavigationProp<any> }) {
+function EnroledProject(props: { project: Project, navigation: NativeStackNavigationProp<any> }) {
 
     if (props.project.projectId === undefined || props.navigation === undefined) {
         return (<></>);
@@ -25,7 +26,7 @@ function EnrolledProject(props: { project: Project, navigation: NativeStackNavig
     );
 }
 
-export const EnrolledProjects = (
+export const EnroledProjects = (
     {navigation}: { navigation: NativeStackNavigationProp<any> },
 ) => {
 
@@ -38,14 +39,16 @@ export const EnrolledProjects = (
     }
 
     return (
-        <>
+        <View style={{paddingVertical: 5, paddingBottom: 15}}>
             <Title>Projects</Title>
-            <Text>Below is a list of all projects you are enrolled on:</Text>
+            <Text>You are enroled on the following project(s):</Text>
 
             {projects.map((project, key) => (
-                <EnrolledProject key={project.projectId + key} project={project} navigation={navigation}/>
+                <View style={{paddingVertical: 5}} key={key}>
+                    <EnroledProject key={project.projectId + key} project={project} navigation={navigation}/>
+                </View>
             ))}
 
-        </>
+        </View>
     );
 };

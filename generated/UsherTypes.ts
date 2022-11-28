@@ -280,7 +280,7 @@ export enum ProjectPermission {
     GPS_FOREGROUND = "Project requests access to GPS (ie location data) while app is in foreground",
     GPS_BACKGROUND = "Project requests access to GPS (ie location data) while app is in background",
     DEVICE_ID = "Project requests that a hash of the device ID be submitted by participant",
-    PARTICIPANT_ID = "Enrolled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
+    PARTICIPANT_ID = "Enroled devices will be given a unique ID; project requests permission to use this ID in any analysis (to join data points together)",
     USER_IP = "Project requests permission to log device IP when submitting participant data",
     CAMERA = "Project requests permission to access camera",
     AUDIO = "Project requests permission to access device audio",

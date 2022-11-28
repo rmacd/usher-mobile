@@ -33,10 +33,10 @@ const App = () => {
 
     const debugFlags = {
         debugNetwork: true,
-        debugPersistence: true,
+        debugPersistence: false,
         debugDB: false,
         debugGeo: true,
-        debugCrypt: true,
+        debugCrypt: false,
     };
 
     const applicationSettings = {

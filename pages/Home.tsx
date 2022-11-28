@@ -3,7 +3,7 @@ import {View} from 'react-native';
 import {InitialEnrolmentBanner} from '../components/InitialEnrolmentBanner';
 import {DefaultViewWrapper} from '../utils/DefaultViewWrapper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {EnrolledProjects} from '../components/EnrolledProjects';
+import {EnroledProjects} from '../components/EnroledProjects';
 import {PermissionsBanner} from '../components/PermissionsBanner';
 
 export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> }) => {
@@ -29,7 +29,7 @@ export const Home = ({navigation}: { navigation: NativeStackNavigationProp<any> 
                 <View>
 
                     <PermissionsBanner navigation={navigation}/>
-                    <EnrolledProjects navigation={navigation}/>
+                    <EnroledProjects navigation={navigation}/>
                     <InitialEnrolmentBanner navigation={navigation}/>
 
                 </View>
